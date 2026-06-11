@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nikah — Find Your Soulmate the Halal Way</title>
+    <meta name="description" content="Nikah is the international Muslim marriage app for serious, faith-focused Muslims worldwide. Halal, respectful, and purposeful matchmaking." />
+
+    <!--
+      Security meta tags.
+      NOTE: X-Frame-Options, X-Content-Type-Options, and Referrer-Policy
+      cannot be set via <meta> — they are served as HTTP response headers
+      (configured in vite.config.ts for dev; see SECURITY.md for production).
+    -->
+
+    <!-- Opt out of browser XSS filtering (superseded by CSP but kept for legacy browsers) -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Strict referrer: full URL only on same-origin, origin-only cross-origin -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!--
+      Content Security Policy (meta tag delivery).
+      Permitted sources:
+        default-src 'self'               — all fetch/XHR/WebSocket defaults to same-origin
+        script-src  'self' 'unsafe-inline' — Vite dev HMR injects inline scripts (remove 'unsafe-inline' in prod)
+        style-src   'self' 'unsafe-inline' https://fonts.googleapis.com  — Tailwind + Google Fonts CSS
+        font-src    'self' https://fonts.gstatic.com                     — Google Fonts binary
+        img-src     'self' data: blob:   — inline SVG data URIs
+        connect-src 'self' ws: wss:      — Vite HMR WebSocket (remove ws: in prod)
+        frame-ancestors 'none'           — NOTE: ignored by browsers from meta; must be set as HTTP header
+    -->
+    <meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src  'self' 'unsafe-inline';
+        style-src   'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src    'self' https://fonts.gstatic.com;
+        img-src     'self' data: blob:;
+        connect-src 'self' ws: wss:;
+        object-src  'none';
+        base-uri    'self';
+      "
+    />
+
+    <!-- Google Fonts — the only permitted external resource -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
