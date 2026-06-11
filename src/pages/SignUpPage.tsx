@@ -13,8 +13,8 @@ import { sanitizePlan, isValidEmail, LIMITS, type PlanId } from '../lib/security
 const PLANS: {
   id: PlanId
   name: string
-  price: string
-  period: string
+  monthly: number    // full monthly price
+  annual: number     // cheaper rate when billed yearly
   icon: React.ElementType
   color: string
   bg: string
@@ -24,8 +24,8 @@ const PLANS: {
   {
     id: 'free',
     name: 'Free',
-    price: '$0',
-    period: 'forever',
+    monthly: 0,
+    annual: 0,
     icon: Zap,
     color: '#6b7280',
     bg: 'rgba(107,114,128,0.08)',
@@ -40,8 +40,8 @@ const PLANS: {
   {
     id: 'premium',
     name: 'Premium',
-    price: '$9.99',
-    period: '/month',
+    monthly: 14.99,   // billed monthly
+    annual:   9.99,   // billed yearly (cheaper)
     icon: Star,
     color: '#b8942d',
     bg: 'rgba(201,168,76,0.10)',
@@ -59,8 +59,8 @@ const PLANS: {
   {
     id: 'family',
     name: 'Family',
-    price: '$24.99',
-    period: '/month',
+    monthly: 24.99,   // billed monthly
+    annual:  17.99,   // billed yearly (cheaper)
     icon: Users,
     color: '#1a6b4a',
     bg: 'rgba(26,107,74,0.08)',
@@ -102,6 +102,7 @@ export default function SignUpPage() {
 
   const [step,         setStep]         = useState<number>(initialPlan !== 'free' ? 1 : 0)
   const [plan,         setPlan]         = useState<PlanId>(initialPlan)
+  const [annual,       setAnnual]       = useState(true)   // annual by default
   const [showPass,     setShowPass]     = useState(false)
   const [submitted,    setSubmitted]    = useState(false)
   const [submitting,   setSubmitting]   = useState(false)
@@ -324,10 +325,37 @@ export default function SignUpPage() {
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Choose your plan</h3>
                 <p className="text-sm text-gray-400">You can upgrade or change at any time</p>
               </div>
+
+              {/* Billing toggle */}
+              <div className="flex items-center gap-2 p-1 rounded-xl w-fit" style={{ background: '#f3f4f6' }}>
+                <button
+                  onClick={() => setAnnual(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={!annual ? { background: 'white', color: '#1a1a2e', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' } : { color: '#9ca3af' }}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setAnnual(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={annual ? { background: 'white', color: '#1a6b4a', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' } : { color: '#9ca3af' }}
+                >
+                  Yearly
+                  <span className="px-1.5 py-0.5 rounded-full text-xs font-bold"
+                    style={{ background: 'rgba(26,107,74,0.12)', color: '#1a6b4a' }}>
+                    -33%
+                  </span>
+                </button>
+              </div>
+
               <div className="space-y-3">
                 {PLANS.map(p => {
-                  const Icon    = p.icon
+                  const Icon     = p.icon
                   const selected = plan === p.id
+                  const price    = annual ? p.annual : p.monthly
+                  const isFree   = p.monthly === 0
+                  const priceDisplay = isFree ? '0' : String(price).replace('.', ',')
+                  const period   = isFree ? 'forever' : annual ? '/mo · billed yearly' : '/month'
                   return (
                     <button
                       key={p.id}
@@ -353,8 +381,8 @@ export default function SignUpPage() {
                               )}
                             </div>
                             <div className="flex items-baseline gap-1 mt-0.5">
-                              <span className="text-lg font-bold" style={{ color: p.color }}>{p.price}</span>
-                              <span className="text-xs text-gray-400">{p.period}</span>
+                              <span className="text-lg font-bold" style={{ color: p.color }}>${priceDisplay}</span>
+                              <span className="text-xs text-gray-400">{period}</span>
                             </div>
                           </div>
                         </div>
