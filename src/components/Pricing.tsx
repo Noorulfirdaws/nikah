@@ -131,7 +131,7 @@ export default function Pricing() {
 
             // Plan name + tagline from i18n (fallback to English)
             const planName    = t[plan.nameKey] ?? plan.nameKey
-            const planTagline = (t as Record<string, string>)[plan.taglineKey] ?? ''
+            const planTagline = (t as unknown as Record<string, string>)[plan.taglineKey] ?? ''
 
             return (
               <div key={plan.id}
