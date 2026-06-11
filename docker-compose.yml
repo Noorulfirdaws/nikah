@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  nikah-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nikah-app
+    ports:
+      - "5175:80"       # access at http://localhost:5175
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
