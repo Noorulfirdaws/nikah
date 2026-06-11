@@ -125,7 +125,8 @@ export default function Pricing() {
         <div className="grid md:grid-cols-3 gap-6 items-start">
           {PLANS.map(plan => {
             const Icon = plan.icon
-            const perMonth = annual ? plan.price.annual : plan.price.monthly
+            const perMonthRaw = annual ? plan.price.annual : plan.price.monthly
+            const perMonth = String(perMonthRaw).replace('.', ',')
             const isFree   = plan.price.monthly === 0
 
             // Plan name + tagline from i18n (fallback to English)
