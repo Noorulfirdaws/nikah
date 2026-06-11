@@ -1,19 +1,12 @@
-# ─────────────────────────────────────────────
-#  Nikah App — Docker launcher
-#  Usage:  .\run.ps1
-# ─────────────────────────────────────────────
+# Nikah App - Docker Manager
+# Usage: .\run.ps1
 
 Write-Host ""
-Write-Host "  ███╗   ██╗██╗██╗  ██╗ █████╗ ██╗  ██╗" -ForegroundColor Green
-Write-Host "  ████╗  ██║██║██║ ██╔╝██╔══██╗██║  ██║" -ForegroundColor Green
-Write-Host "  ██╔██╗ ██║██║█████╔╝ ███████║███████║" -ForegroundColor Green
-Write-Host "  ██║╚██╗██║██║██╔═██╗ ██╔══██║██╔══██║" -ForegroundColor Green
-Write-Host "  ██║ ╚████║██║██║  ██╗██║  ██║██║  ██║" -ForegroundColor Green
-Write-Host "  ╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝" -ForegroundColor Green
+Write-Host "  ================================" -ForegroundColor Green
+Write-Host "        NIKAH APP - Docker        " -ForegroundColor Green
+Write-Host "    Muslim Marriage Platform      " -ForegroundColor Green
+Write-Host "  ================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Muslim Marriage App — Docker Manager" -ForegroundColor Cyan
-Write-Host ""
-
 Write-Host "  What do you want to do?" -ForegroundColor White
 Write-Host ""
 Write-Host "  [1]  Start app          (build + run)" -ForegroundColor Yellow
