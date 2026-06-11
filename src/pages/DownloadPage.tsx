@@ -29,20 +29,23 @@ export default function DownloadPage() {
         {/* App store buttons */}
         <div className="grid sm:grid-cols-2 gap-5 max-w-xl mx-auto mb-14">
           {[
-            { store: 'App Store', platform: 'iOS', icon: '🍎', sub: 'Requires iOS 15.0 or later', badge: 'Available on the' },
-            { store: 'Google Play', platform: 'Android', icon: '🤖', sub: 'Requires Android 8.0 or later', badge: 'Get it on' },
+            { store: 'App Store', icon: '🍎', sub: 'Requires iOS 15.0 or later', badge: 'Available on the', href: 'https://apps.apple.com' },
+            { store: 'Google Play', icon: '▶️', sub: 'Requires Android 8.0 or later', badge: 'Get it on', href: 'https://play.google.com/store' },
           ].map(item => (
-            <button
+            <a
               key={item.store}
-              className="flex items-center gap-4 p-5 rounded-2xl border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all group text-left"
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 p-5 rounded-2xl border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all group text-left no-underline"
             >
               <span className="text-4xl">{item.icon}</span>
               <div>
                 <p className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors">{item.badge}</p>
                 <p className="font-bold text-lg text-gray-900 group-hover:text-white transition-colors leading-tight">{item.store}</p>
-                <p className="text-xs text-gray-400 group-hover:text-gray-400 mt-0.5">{item.sub}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{item.sub}</p>
               </div>
-            </button>
+            </a>
           ))}
         </div>
 
