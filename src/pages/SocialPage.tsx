@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ExternalLink, Bell, Heart, Share2, Users } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Bell, BellOff, Heart, Share2, Check, Users } from 'lucide-react'
 
 // ─── Branded SVG icons ────────────────────────────────────────────────────────
 
@@ -108,15 +109,25 @@ const RECENT_POSTS = [
   { id: 6, type: 'tip',     text: '💡 Remember: A successful nikah starts with sincere intention (niyyah). Keep it for the sake of Allah.', likes: 991,  platform: 'twitter'   },
 ]
 
-export default function SocialPage() {
-  const { platform } = useParams<{ platform?: string }>()
-  const current = platform ? PLATFORMS[platform] : null
+function PlatformPage({ platformKey, current }: { platformKey: string; current: typeof PLATFORMS[string] }) {
+  const [notified, setNotified] = useState(false)
+  const [copiedId, setCopiedId] = useState<number | null>(null)
+  const posts = RECENT_POSTS.filter(p => p.platform === platformKey)
+  const CurrentIcon = current.Icon
 
-  // ── Single platform page ────────────────────────────────────────────────────
-  if (current) {
-    const posts = RECENT_POSTS.filter(p => p.platform === platform)
-    const CurrentIcon = current.Icon
-    return (
+  const handleShare = (postId: number, text: string) => {
+    const url = window.location.href
+    if (navigator.share) {
+      navigator.share({ text, url }).catch(() => {})
+    } else {
+      navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+        setCopiedId(postId)
+        setTimeout(() => setCopiedId(null), 2000)
+      })
+    }
+  }
+
+  return (
       <div style={{ paddingTop: 64, minHeight: '100vh', background: current.bg }}>
         <div className="max-w-2xl mx-auto px-4 py-10">
           {/* Back */}
@@ -170,9 +181,14 @@ export default function SocialPage() {
                   <ExternalLink size={14} />
                   {current.cta}
                 </a>
-                <button className="px-4 py-3 rounded-2xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5">
-                  <Bell size={14} />
-                  Notify me
+                <button
+                  onClick={() => setNotified(v => !v)}
+                  className="px-4 py-3 rounded-2xl border text-sm font-medium transition-colors flex items-center gap-1.5"
+                  style={notified
+                    ? { background: '#f0fdf4', borderColor: '#bbf7d0', color: '#1a6b4a' }
+                    : { borderColor: '#e5e7eb', color: '#4b5563' }}
+                >
+                  {notified ? <><BellOff size={14} /> Notified</> : <><Bell size={14} /> Notify me</>}
                 </button>
               </div>
             </div>
@@ -187,7 +203,12 @@ export default function SocialPage() {
                   <p className="text-sm text-gray-700 leading-relaxed mb-3">{post.text}</p>
                   <div className="flex items-center gap-4 text-xs text-gray-400">
                     <span className="flex items-center gap-1"><Heart size={11} /> {post.likes.toLocaleString()} likes</span>
-                    <span className="flex items-center gap-1"><Share2 size={11} /> Share</span>
+                    <button
+                      onClick={() => handleShare(post.id, post.text)}
+                      className="flex items-center gap-1 hover:text-gray-600 transition-colors"
+                    >
+                      {copiedId === post.id ? <><Check size={11} /> Copied!</> : <><Share2 size={11} /> Share</>}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -202,6 +223,14 @@ export default function SocialPage() {
         </div>
       </div>
     )
+}
+
+export default function SocialPage() {
+  const { platform } = useParams<{ platform?: string }>()
+  const current = platform ? PLATFORMS[platform] : null
+
+  if (current) {
+    return <PlatformPage platformKey={platform!} current={current} />
   }
 
   // ── Social hub (all platforms) ──────────────────────────────────────────────

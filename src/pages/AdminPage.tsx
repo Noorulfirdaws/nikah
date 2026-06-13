@@ -1249,7 +1249,7 @@ function AdminLogin({
         </form>
 
         <p className="text-center text-xs text-white/25 mt-6">
-          🔒 Demo only · Username: <span className="font-mono">{credentials.username}</span> · Change password in Settings
+          🔒 Admin access only · Contact your administrator for credentials
         </p>
       </div>
     </div>
