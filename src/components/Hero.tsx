@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { Heart, Star, MapPin, MessageCircle, Shield, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../lib/LanguageContext'
 
 
 function PhoneMockup() {
+  const [liked, setLiked] = useState(false)
+  const [activeNav, setActiveNav] = useState('Home')
+
   return (
     <div className="relative flex items-center justify-center" style={{ minHeight: 520 }}>
       {/* Glow rings */}
@@ -73,10 +77,15 @@ function PhoneMockup() {
             </p>
           </div>
           <div className="flex border-t border-white/10">
-            <button className="flex-1 py-2.5 text-xs font-medium text-white/70 hover:bg-white/10 transition-colors flex items-center justify-center gap-1">
-              <Heart size={13} className="text-red-400" /> Like
+            <button
+              onClick={() => setLiked(l => !l)}
+              className="flex-1 py-2.5 text-xs font-medium hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center gap-1"
+              style={{ color: liked ? '#f87171' : 'rgba(255,255,255,0.7)' }}
+            >
+              <Heart size={13} fill={liked ? '#f87171' : 'none'} className={liked ? 'text-red-400' : 'text-red-400'} />
+              {liked ? 'Liked ♥' : 'Like'}
             </button>
-            <button className="flex-1 py-2.5 text-xs font-medium flex items-center justify-center gap-1" style={{ color: '#e8c96e' }}>
+            <button className="flex-1 py-2.5 text-xs font-medium flex items-center justify-center gap-1 active:scale-95 transition-all hover:bg-white/10" style={{ color: '#e8c96e' }}>
               <MessageCircle size={13} /> Message
             </button>
           </div>
@@ -109,9 +118,14 @@ function PhoneMockup() {
             { icon: '💬', label: 'Chats' },
             { icon: '👤', label: 'Profile' },
           ].map(item => (
-            <button key={item.label} className="flex flex-col items-center gap-0.5 opacity-70 hover:opacity-100 transition-opacity">
+            <button
+              key={item.label}
+              onClick={() => setActiveNav(item.label)}
+              className="flex flex-col items-center gap-0.5 transition-all active:scale-90"
+              style={{ opacity: activeNav === item.label ? 1 : 0.5 }}
+            >
               <span className="text-base">{item.icon}</span>
-              <span className="text-white/50 text-xs">{item.label}</span>
+              <span className="text-xs" style={{ color: activeNav === item.label ? '#2d9b6f' : 'rgba(255,255,255,0.5)' }}>{item.label}</span>
             </button>
           ))}
         </div>

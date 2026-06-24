@@ -45,7 +45,7 @@ const COUNTRIES = [
 const NAV_ITEMS = [
   { tKey: 'How it Works', anchor: 'how-it-works' },
   { tKey: 'Features',     anchor: 'features'     },
-  { tKey: 'Safety',       anchor: 'safety',  path: '/safety' },
+  { tKey: 'Safety',       anchor: 'safety'                   },
   { tKey: 'Stories',      anchor: 'stories'       },
   { tKey: 'Pricing',      anchor: 'pricing'       },
   { tKey: 'Help',         path: '/help'           },
