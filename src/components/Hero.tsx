@@ -223,12 +223,12 @@ export default function Hero() {
               {t.hero_subtitle}
             </p>
 
-            {/* Stats */}
+            {/* Trust stats — honest platform commitments, not vanity metrics */}
             <div className="flex items-center justify-center lg:justify-start gap-6 mb-8">
               {[
-                { value: '2M+', label: t.common_members },
-                { value: '50+', label: 'Countries' },
-                { value: '13',  label: 'Languages' },
+                { value: '100%', label: 'Profiles reviewed' },
+                { value: '< 24h', label: 'Report response' },
+                { value: '50+',  label: 'Countries served' },
               ].map(stat => (
                 <div key={stat.label} className="text-center">
                   <p className="text-2xl font-bold text-white">{stat.value}</p>
@@ -259,10 +259,10 @@ export default function Hero() {
             {/* Trust chips */}
             <div className="flex flex-wrap gap-2 mt-6 justify-center lg:justify-start">
               {[
-                '🔒 Private & Secure',
-                '✅ Verified Profiles',
-                '🕌 Halal Community',
-                '👨‍👩‍👧 Wali Mode',
+                '🪪 ID-Verified Members',
+                '👨‍👩‍👧 Family & Wali Involved',
+                '🕌 Marriage Intent Screened',
+                '🚫 No Casual Dating',
               ].map(chip => (
                 <span
                   key={chip}
@@ -282,7 +282,7 @@ export default function Hero() {
 
         {/* Country flags scroll */}
         <div className="mt-16 pt-8 border-t border-white/10">
-          <p className="text-center text-white/50 text-xs uppercase tracking-widest mb-4">Muslims worldwide use Nikah</p>
+          <p className="text-center text-white/50 text-xs uppercase tracking-widest mb-4">Serving Muslim communities in 50+ countries</p>
           <div className="flex flex-wrap justify-center gap-3">
             {['🇺🇸','🇬🇧','🇨🇦','🇫🇷','🇩🇪','🇹🇷','🇸🇦','🇦🇪','🇵🇰','🇮🇳','🇧🇩','🇲🇾','🇮🇩','🇪🇬','🇲🇦','🇩🇿','🇸🇴','🇳🇬','🇿🇦','🇶🇦'].map((flag, i) => (
               <span key={i} className="text-2xl opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-default select-none">{flag}</span>

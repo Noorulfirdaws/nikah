@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import {
   Check, ChevronRight, Eye, EyeOff, User, Mail, Lock,
-  MapPin, Globe, Heart, AlertTriangle, Info, Star, Users, Zap,
+  Globe, Heart, AlertTriangle, Info, Star, Users, Zap,
+  Fingerprint, HeartHandshake, ShieldCheck,
 } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import PasswordStrength from '../components/PasswordStrength'
@@ -79,18 +80,27 @@ const PLANS: {
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
 
+// 8-step marriage-first onboarding wizard.
 const STEPS = [
-  { id: 0, label: 'Plan',     icon: Star    },
-  { id: 1, label: 'Account',  icon: User    },
-  { id: 2, label: 'Faith',    icon: Heart   },
-  { id: 3, label: 'Location', icon: MapPin  },
-  { id: 4, label: 'Profile',  icon: Globe   },
+  { id: 0, label: 'Plan',      icon: Star          },
+  { id: 1, label: 'Account',   icon: User          },
+  { id: 2, label: 'Verify',    icon: Fingerprint   },
+  { id: 3, label: 'Faith',     icon: Heart         },
+  { id: 4, label: 'Goals',     icon: HeartHandshake},
+  { id: 5, label: 'Family',    icon: Users         },
+  { id: 6, label: 'Privacy',   icon: ShieldCheck   },
+  { id: 7, label: 'Profile',   icon: Globe         },
 ]
+const LAST_STEP = STEPS.length - 1
 
 const SECTS        = ['Sunni — Hanafi', 'Sunni — Maliki', "Sunni — Shafi'i", 'Sunni — Hanbali', 'Shia', 'Ibadi', 'Prefer not to say', 'Other']
 const PRAYER_LEVELS= ['5 times daily', 'Mostly daily', 'Sometimes', 'Working on it', 'Prefer not to say']
 const LANGUAGES    = ['English', 'Arabic', 'French', 'Turkish', 'Urdu', 'Hindi', 'Bengali', 'Bahasa Indonesia', 'Malay', 'Somali', 'German', 'Spanish']
 const TIMELINES    = ['Ready now', 'Within 6 months', 'Within a year', '1–2 years', 'When the right person comes']
+const CHILDREN_PREFS   = ['Want children', 'Want children soon', 'Open to children', 'Have children already', 'Prefer not to say']
+const LIVING_PREFS     = ['Own home together', 'With my family', 'With spouse\'s family', 'Flexible / to discuss']
+const RELOCATION_PREFS = ['Willing to relocate', 'Prefer spouse relocates', 'Either of us', 'Not willing to relocate']
+const FAMILY_MODES     = ['Wali involved from the start', 'Family joins after introduction', 'Family informed, not in chat', 'I will decide per conversation']
 const COUNTRIES    = ['United States', 'United Kingdom', 'Canada', 'France', 'Germany', 'Turkey', 'Saudi Arabia', 'UAE', 'Pakistan', 'India', 'Bangladesh', 'Indonesia', 'Malaysia', 'Egypt', 'Morocco', 'Other']
 const INTERESTS    = ['Quran & Islamic studies', 'Travel', 'Cooking', 'Fitness', 'Reading', 'Community service', 'Entrepreneurship', 'Nature & outdoors', 'Art & design', 'Technology', 'Music (halal)', 'Sports']
 
@@ -125,9 +135,23 @@ export default function SignUpPage() {
     languages:   [] as string[],
     interests:   [] as string[],
     bio:         '',
+    // Verification (step 2)
+    verifyConsent:  false,
+    intentConfirm:  false,
+    // Marriage goals (step 4)
+    children:    '',
+    living:      '',
+    relocation:  '',
+    // Family participation (step 5)
+    familyMode:  '',
+    waliName:    '',
+    // Privacy (step 6)
+    photoBlur:      true,
+    verifiedOnly:   true,
+    familyVisible:  false,
   })
 
-  const set = (k: keyof typeof form, v: string | string[]) => {
+  const set = (k: keyof typeof form, v: string | string[] | boolean) => {
     if (k === 'email') setEmailError('')
     setForm(f => ({ ...f, [k]: v }))
   }
@@ -150,8 +174,12 @@ export default function SignUpPage() {
       form.password.length >= 8 &&
       form.age
     )
-    if (step === 2) return form.sect && form.prayerLevel && form.timeline
-    if (step === 3) return form.country && form.languages.length > 0
+    if (step === 2) return form.verifyConsent && form.intentConfirm
+    if (step === 3) return form.sect && form.prayerLevel && form.timeline
+    if (step === 4) return form.children && form.living && form.relocation
+    if (step === 5) return form.familyMode
+    if (step === 6) return true // privacy defaults are safe
+    if (step === 7) return form.country && form.languages.length > 0
     return true
   }
 
@@ -160,7 +188,7 @@ export default function SignUpPage() {
       setEmailError('Please enter a valid email address')
       return
     }
-    if (step < 4) {
+    if (step < LAST_STEP) {
       setStep(s => s + 1)
       return
     }
@@ -267,10 +295,10 @@ export default function SignUpPage() {
   return (
     <div style={{ paddingTop: 64, minHeight: '100vh', background: '#faf8f4' }}>
       <PageHero
-        label="✨ Join Nikah"
+        label="✨ Begin Your Marriage Journey"
         title="Create Your"
-        titleHighlight="Free Profile"
-        subtitle="Find your soulmate the halal way. Takes less than 5 minutes."
+        titleHighlight="Verified Profile"
+        subtitle="A safe, family-friendly path to Nikah starts with a verified, marriage-focused profile."
       />
 
       <div className="max-w-lg mx-auto px-4 py-10">
@@ -532,8 +560,43 @@ export default function SignUpPage() {
             </div>
           )}
 
-          {/* ── Step 2: Faith ── */}
+          {/* ── Step 2: Identity verification ── */}
           {step === 2 && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Identity verification</h3>
+                <p className="text-sm text-gray-400">Everyone on Nikah is a real, verified person — including you</p>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { icon: Fingerprint, title: 'Government ID', desc: 'Upload a government-issued ID after signup. Reviewed by a human, then deleted.' },
+                  { icon: Eye,         title: 'Face verification', desc: 'A short live selfie matched to your ID photo — prevents stolen-photo profiles.' },
+                  { icon: Mail,        title: 'Phone & email', desc: 'One account per verified phone number. Disposable numbers are rejected.' },
+                ].map(v => (
+                  <div key={v.title} className="flex gap-3 p-4 rounded-2xl border border-gray-100" style={{ background: '#faf9f6' }}>
+                    <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(26,107,74,0.1)' }}>
+                      <v.icon size={18} style={{ color: '#1a6b4a' }} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">{v.title}</p>
+                      <p className="text-gray-500 text-xs leading-relaxed">{v.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <label className="flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all" style={{ borderColor: form.verifyConsent ? '#1a6b4a' : '#e5e5e5' }}>
+                <input type="checkbox" checked={form.verifyConsent} onChange={e => set('verifyConsent', e.target.checked)} className="mt-0.5 accent-emerald-700" />
+                <span className="text-sm text-gray-600">I agree to complete identity verification before contacting other members.</span>
+              </label>
+              <label className="flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all" style={{ borderColor: form.intentConfirm ? '#1a6b4a' : '#e5e5e5' }}>
+                <input type="checkbox" checked={form.intentConfirm} onChange={e => set('intentConfirm', e.target.checked)} className="mt-0.5 accent-emerald-700" />
+                <span className="text-sm text-gray-600">I confirm I am seeking marriage (Nikah). I understand casual use is prohibited and leads to removal.</span>
+              </label>
+            </div>
+          )}
+
+          {/* ── Step 3: Faith & values ── */}
+          {step === 3 && (
             <div className="space-y-5">
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Faith &amp; values</h3>
@@ -601,12 +664,113 @@ export default function SignUpPage() {
             </div>
           )}
 
-          {/* ── Step 3: Location ── */}
-          {step === 3 && (
+          {/* ── Step 4: Marriage goals ── */}
+          {step === 4 && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Location &amp; language</h3>
-                <p className="text-sm text-gray-400">Where are you and what languages do you speak?</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Marriage goals</h3>
+                <p className="text-sm text-gray-400">These answers power your compatibility matching</p>
+              </div>
+              {([
+                ['Children', 'children', CHILDREN_PREFS],
+                ['Living arrangements', 'living', LIVING_PREFS],
+                ['Relocation', 'relocation', RELOCATION_PREFS],
+              ] as const).map(([label, key, options]) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {options.map(o => (
+                      <button
+                        key={o}
+                        onClick={() => set(key, o)}
+                        className="py-2.5 px-3 rounded-xl text-xs font-medium border-2 transition-all text-left"
+                        style={{
+                          borderColor: form[key] === o ? '#1a6b4a' : '#e5e5e5',
+                          background:  form[key] === o ? 'rgba(26,107,74,0.07)' : 'white',
+                          color:       form[key] === o ? '#1a6b4a' : '#555',
+                        }}
+                      >
+                        {o}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── Step 5: Family participation ── */}
+          {step === 5 && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Family participation</h3>
+                <p className="text-sm text-gray-400">How would you like your family or wali involved?</p>
+              </div>
+              <div className="space-y-2">
+                {FAMILY_MODES.map(m => (
+                  <button
+                    key={m}
+                    onClick={() => set('familyMode', m)}
+                    className="w-full py-3 px-4 rounded-xl text-sm border-2 transition-all text-left flex items-center justify-between"
+                    style={{
+                      borderColor: form.familyMode === m ? '#1a6b4a' : '#e5e5e5',
+                      background:  form.familyMode === m ? 'rgba(26,107,74,0.07)' : 'white',
+                      color:       form.familyMode === m ? '#1a6b4a' : '#555',
+                    }}
+                  >
+                    {m}
+                    {form.familyMode === m && <Check size={14} />}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Wali / guardian name <span className="text-gray-400 font-normal text-xs">(optional — can be added later)</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.waliName}
+                  onChange={e => set('waliName', e.target.value)}
+                  placeholder="e.g. Abu Ahmed"
+                  maxLength={LIMITS.name}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 transition-colors"
+                />
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Family tools are always under your control — you decide what your family sees and when they join.
+              </p>
+            </div>
+          )}
+
+          {/* ── Step 6: Privacy configuration ── */}
+          {step === 6 && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Privacy settings</h3>
+                <p className="text-sm text-gray-400">Safe defaults — change them anytime</p>
+              </div>
+              {([
+                ['Blur my photos by default', 'Only people you approve can see your photos clearly.', 'photoBlur'],
+                ['Verified members only can contact me', 'Unverified accounts cannot send you messages.', 'verifiedOnly'],
+                ['Share my activity with my family dashboard', 'Your wali/family sees introductions and proposals.', 'familyVisible'],
+              ] as const).map(([title, desc, key]) => (
+                <label key={key} className="flex items-start justify-between gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all" style={{ borderColor: form[key] ? '#1a6b4a' : '#e5e5e5' }}>
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm">{title}</p>
+                    <p className="text-gray-500 text-xs">{desc}</p>
+                  </div>
+                  <input type="checkbox" checked={form[key]} onChange={e => set(key, e.target.checked)} className="mt-1 accent-emerald-700" />
+                </label>
+              ))}
+            </div>
+          )}
+
+          {/* ── Step 7: Profile completion (location, languages, interests, bio) ── */}
+          {step === 7 && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Complete your profile</h3>
+                <p className="text-sm text-gray-400">Location, languages, and a little about you</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Country</label>
@@ -655,13 +819,9 @@ export default function SignUpPage() {
             </div>
           )}
 
-          {/* ── Step 4: Profile ── */}
-          {step === 4 && (
-            <div className="space-y-5">
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">About you</h3>
-                <p className="text-sm text-gray-400">Let potential matches get to know you</p>
-              </div>
+          {/* ── Step 7 (continued): interests, bio, summary ── */}
+          {step === 7 && (
+            <div className="space-y-5 mt-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Interests <span className="text-gray-400 font-normal text-xs">(choose up to 8)</span>
@@ -705,13 +865,16 @@ export default function SignUpPage() {
               <div className="p-4 rounded-2xl space-y-1.5" style={{ background: 'rgba(26,107,74,0.06)' }}>
                 <p className="text-xs font-semibold text-gray-600 mb-2">Registration summary</p>
                 {[
-                  ['Name',     `${form.firstName} ${form.lastName}`],
-                  ['Gender',   form.gender],
-                  ['Country',  form.country],
-                  ['Sect',     form.sect],
-                  ['Prayer',   form.prayerLevel],
-                  ['Timeline', form.timeline],
-                  ['Plan',     `${activePlan.name} — ${activePlan.price}${activePlan.period}`],
+                  ['Name',       `${form.firstName} ${form.lastName}`],
+                  ['Gender',     form.gender],
+                  ['Country',    form.country],
+                  ['Sect',       form.sect],
+                  ['Prayer',     form.prayerLevel],
+                  ['Timeline',   form.timeline],
+                  ['Children',   form.children],
+                  ['Family',     form.familyMode],
+                  ['Verification', form.verifyConsent ? 'Agreed — completes after signup' : '—'],
+                  ['Plan',       `${activePlan.name} — $${annual ? activePlan.annual : activePlan.monthly}${activePlan.monthly === 0 ? '' : annual ? '/mo billed yearly' : '/month'}`],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs">
                     <span className="text-gray-400">{k}</span>
@@ -754,7 +917,7 @@ export default function SignUpPage() {
                 </>
               ) : (
                 <>
-                  {step === 0 ? `Continue with ${activePlan.name}` : step === 4 ? 'Create My Profile' : 'Continue'}
+                  {step === 0 ? `Continue with ${activePlan.name}` : step === LAST_STEP ? 'Create My Verified Profile' : 'Continue'}
                   <ChevronRight size={17} />
                 </>
               )}
@@ -769,7 +932,7 @@ export default function SignUpPage() {
 
         {/* Trust badges */}
         <div className="flex flex-wrap justify-center gap-4 mt-6">
-          {['🔒 Private & secure', '✅ Free to start', '🕌 Halal-first', '👨‍👩‍👧 Wali mode available'].map(t => (
+          {['🪪 Identity verified', '🔒 Private & secure', '🕌 Marriage-focused only', '👨‍👩‍👧 Family involvement built in'].map(t => (
             <span key={t} className="text-xs text-gray-400">{t}</span>
           ))}
         </div>

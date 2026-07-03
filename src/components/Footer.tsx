@@ -42,6 +42,7 @@ const LINKS = {
   ],
   Support: [
     { label: 'Help Center', to: '/help' },
+    { label: 'Trust Center', to: '/trust' },
     { label: 'Safety Center', to: '/safety' },
     { label: 'Community Guidelines', to: '/community-guidelines' },
     { label: 'Contact Us', to: '/contact' },

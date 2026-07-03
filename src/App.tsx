@@ -15,6 +15,7 @@ import ContactPage from './pages/ContactPage'
 import DownloadPage from './pages/DownloadPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AdminPage from './pages/AdminPage'
+import TrustCenterPage from './pages/TrustCenterPage'
 import SocialPage from './pages/SocialPage'
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/safety" element={<SafetyCenterPage />} />
+          <Route path="/trust" element={<TrustCenterPage />} />
           <Route path="/community-guidelines" element={<CommunityGuidelinesPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/contact" element={<ContactPage />} />

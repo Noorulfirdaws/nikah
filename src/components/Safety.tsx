@@ -4,50 +4,50 @@ import { useLang } from '../lib/LanguageContext'
 const SAFETY_ITEMS = [
   {
     icon: Fingerprint,
-    title: 'Identity Verification',
-    desc: 'Optional ID and selfie verification gives profiles a verified badge — so you know you\'re connecting with real people.',
-    color: '#1a6b4a',
-  },
-  {
-    icon: Eye,
-    title: 'Blur Photos by Default',
-    desc: 'Your photos are blurred until you explicitly approve who can see them. Your image, your control.',
-    color: '#2d6fa5',
-  },
-  {
-    icon: Lock,
-    title: 'Private Photo Album',
-    desc: 'Create a private album that\'s only shared with approved connections — protect your privacy at every stage.',
-    color: '#7c4dbe',
-  },
-  {
-    icon: Users,
-    title: 'Wali & Chaperone Mode',
-    desc: 'Invite a wali, parent, or trusted family member into any conversation for a fully halal and transparent process.',
-    color: '#c9a84c',
-  },
-  {
-    icon: AlertCircle,
-    title: 'Report & Block',
-    desc: 'Report suspicious or inappropriate behavior instantly. Block anyone without explanation. We act on every report.',
-    color: '#c94a4a',
-  },
-  {
-    icon: FileCheck,
-    title: 'Community Guidelines',
-    desc: 'A clear, respectful code of conduct focused on Islamic values. No harassment, no inappropriate messaging, ever.',
+    title: 'Government ID Verification',
+    desc: 'Members verify with a government-issued ID, face verification, and phone number — so every person you meet is real and accountable.',
     color: '#1a6b4a',
   },
   {
     icon: ShieldCheck,
-    title: 'Anti-Scam Protection',
-    desc: 'AI-powered scam detection monitors patterns and flags suspicious activity to keep our community safe.',
+    title: 'AI Fraud Detection',
+    desc: 'Automated systems score risk, detect scam patterns like money requests and mass messaging, and restrict suspicious accounts before harm is done.',
     color: '#2d6fa5',
   },
   {
     icon: UserX,
-    title: 'Profile Moderation',
-    desc: 'A dedicated trust and safety team reviews profiles, photos, and flagged content to maintain a high-quality community.',
+    title: 'Human Moderation',
+    desc: 'A dedicated trust and safety team reviews every profile, every flagged conversation, and every verification submission — not just algorithms.',
+    color: '#7c4dbe',
+  },
+  {
+    icon: AlertCircle,
+    title: 'Reports Answered in 24 Hours',
+    desc: 'Report suspicious or inappropriate behavior instantly. A human moderator responds to every report within 24 hours.',
+    color: '#c94a4a',
+  },
+  {
+    icon: Eye,
+    title: 'Photo Protection',
+    desc: 'Photos are blurred by default and screenshots are discouraged. You approve exactly who can see your image — your photo, your control.',
+    color: '#2d6fa5',
+  },
+  {
+    icon: Lock,
+    title: 'Privacy Controls',
+    desc: 'Private photo albums, hidden mode, granular visibility settings, and family-only viewing options protect you at every stage.',
+    color: '#c9a84c',
+  },
+  {
+    icon: Users,
+    title: 'Wali & Chaperone Mode',
+    desc: 'Invite a wali, parent, or trusted family member into any conversation for a fully transparent, family-supervised process.',
+    color: '#1a6b4a',
+  },
+  {
+    icon: FileCheck,
+    title: 'Block & Restrict Tools',
+    desc: 'Block anyone instantly without explanation. Restrict who can contact you to verified members only. Clear community guidelines, enforced.',
     color: '#7c4dbe',
   },
 ]
@@ -93,19 +93,19 @@ export default function Safety() {
           })}
         </div>
 
-        {/* Trust bar */}
+        {/* Safety commitments — platform standards, not vanity numbers */}
         <div className="mt-14 p-6 rounded-2xl text-center" style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)' }}>
           <p className="text-white font-semibold text-lg mb-1">
-            Trusted by <span style={{ color: '#c9a84c' }}>6 million Muslims</span> worldwide
+            Our safety commitments to <span style={{ color: '#c9a84c' }}>every member</span>
           </p>
           <p className="text-white/60 text-sm">
-            Our safety team operates 24/7 across all time zones to protect every member of the Nikah community.
+            Human moderators operate across time zones. These are standards we hold ourselves to — published in our Trust Center.
           </p>
           <div className="flex flex-wrap justify-center gap-6 mt-5">
             {[
-              ['99.2%', 'Scam detection rate'],
-              ['< 2hr', 'Average response to reports'],
-              ['100%', 'Profile moderation'],
+              ['100%', 'Profiles human-reviewed'],
+              ['< 24h', 'Report response time'],
+              ['0', 'Tolerance for money requests'],
               ['GDPR', 'Data compliant'],
             ].map(([val, label]) => (
               <div key={label} className="text-center">
@@ -114,6 +114,9 @@ export default function Safety() {
               </div>
             ))}
           </div>
+          <a href="/trust" className="inline-block mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: '#c9a84c', color: '#1a1a2e' }}>
+            Visit the Trust Center
+          </a>
         </div>
       </div>
     </section>

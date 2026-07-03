@@ -1,46 +1,54 @@
-import { UserPlus, SlidersHorizontal, Sparkles, MessageCircle, Users } from 'lucide-react'
+import { UserPlus, Fingerprint, ClipboardCheck, Sparkles, MessageCircle, Users } from 'lucide-react'
 import { useLang } from '../lib/LanguageContext'
 
 const STEPS = [
   {
     icon: UserPlus,
     number: '01',
-    title: 'Create Your Verified Profile',
-    desc: 'Sign up with a verified email and phone. Add your faith background, values, family expectations, and marriage intentions. Optional ID verification builds extra trust.',
+    title: 'Create a Verified Profile',
+    desc: 'Build a marriage-focused profile stating your faith, values, family expectations, and marriage intentions — reviewed before it goes live.',
     color: '#1a6b4a',
-    highlights: ['Photo with privacy controls', 'ID/profile verification', 'Faith & background info'],
+    highlights: ['Marriage intent stated upfront', 'Profile reviewed by a human', 'Photo privacy controls'],
   },
   {
-    icon: SlidersHorizontal,
+    icon: Fingerprint,
     number: '02',
-    title: 'Set Your Faith & Preferences',
-    desc: 'Define what matters most — sect, prayer practice, halal lifestyle, marriage timeline, location preference, languages spoken, and cultural background.',
+    title: 'Verify Your Identity',
+    desc: 'Complete government ID, face, and phone verification. Every member you meet is a real, accountable person — no anonymous profiles.',
     color: '#c9a84c',
-    highlights: ['Sunni / Shia / other', 'Prayer frequency', 'Marriage timeline'],
+    highlights: ['Government ID check', 'Face verification', 'Phone verification'],
+  },
+  {
+    icon: ClipboardCheck,
+    number: '03',
+    title: 'Complete Your Marriage Assessment',
+    desc: 'Answer marriage-readiness and compatibility questions covering deen, prayer, madhab, family values, children, finances, and timeline.',
+    color: '#2d6fa5',
+    highlights: ['Marriage readiness score', 'Faith & values assessment', 'Marriage timeline'],
   },
   {
     icon: Sparkles,
-    number: '03',
-    title: 'Discover Compatible Matches',
-    desc: 'Our compatibility engine surfaces profiles aligned with your faith, values, lifestyle, and location. Browse with purpose — every match is marriage-focused.',
-    color: '#2d6fa5',
-    highlights: ['Compatibility score', 'Faith-first filtering', 'Location & language filters'],
+    number: '04',
+    title: 'Receive Marriage Candidates',
+    desc: 'We introduce you only to verified, compatible candidates who share your marriage timeline — with a compatibility score explained for each.',
+    color: '#7c4dbe',
+    highlights: ['Verified candidates only', 'Compatibility explained', 'Filter by readiness'],
   },
   {
     icon: MessageCircle,
-    number: '04',
-    title: 'Chat Respectfully',
-    desc: 'Start a conversation through icebreaker questions. All chats are respectful and purpose-driven. Share video intros and voice notes to connect meaningfully.',
-    color: '#7c4dbe',
-    highlights: ['Icebreaker questions', 'Video intro prompts', 'Respectful guidelines'],
+    number: '05',
+    title: 'Begin Introductions',
+    desc: 'Start a chaperoned or private introduction with clear guidelines. Conversations are purpose-driven and protected by moderation.',
+    color: '#c94a4a',
+    highlights: ['Chaperoned option', 'Consent-based messaging', 'Moderated conversations'],
   },
   {
     icon: Users,
-    number: '05',
-    title: 'Involve Your Wali or Chaperone',
-    desc: 'When ready to take things further, invite a parent, wali, or trusted family member to join the conversation — all built into the app for a fully halal process.',
-    color: '#c94a4a',
-    highlights: ['Wali/chaperone invite', 'Family chat mode', 'Guided next steps'],
+    number: '06',
+    title: 'Involve Families & Proceed to Nikah',
+    desc: 'Invite your wali, parents, or trusted family into the conversation and move toward Nikah with full transparency and Allah\'s blessing.',
+    color: '#1a6b4a',
+    highlights: ['Wali/family invite', 'Family review of proposals', 'Guided steps to Nikah'],
   },
 ]
 
@@ -67,7 +75,7 @@ export default function HowItWorks() {
           {/* Connecting line (desktop) */}
           <div className="hidden lg:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-transparent via-gray-200 to-transparent z-0" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
             {STEPS.map((step, i) => {
               const Icon = step.icon
               return (

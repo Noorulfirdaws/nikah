@@ -42,13 +42,14 @@ const COUNTRIES = [
 ]
 
 // Nav items: tKey → translation key suffix, anchor id (home scroll) or path (page)
+// Structure: Home | Matches | Safety | Success Stories | Pricing | Trust Center
 const NAV_ITEMS = [
-  { tKey: 'How it Works', anchor: 'how-it-works' },
-  { tKey: 'Features',     anchor: 'features'     },
-  { tKey: 'Safety',       anchor: 'safety'                   },
-  { tKey: 'Stories',      anchor: 'stories'       },
-  { tKey: 'Pricing',      anchor: 'pricing'       },
-  { tKey: 'Help',         path: '/help'           },
+  { tKey: 'Home',            path: '/'             },
+  { tKey: 'Matches',         anchor: 'matching'    },
+  { tKey: 'Safety',          anchor: 'safety'      },
+  { tKey: 'Success Stories', anchor: 'stories'     },
+  { tKey: 'Pricing',         anchor: 'pricing'     },
+  { tKey: 'Trust Center',    path: '/trust'        },
 ]
 
 interface Props {
@@ -70,12 +71,12 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
 
   // Nav label map — short labels only (must fit in narrow header)
   const NAV_LABELS: Record<string, string> = {
-    'How it Works': t.nav_howitworks,
-    'Features':     t.nav_features,
-    'Safety':       t.nav_safety,
-    'Stories':      t.nav_stories,
-    'Pricing':      t.nav_pricing,
-    'Help':         t.nav_help,
+    'Home':            t.nav_home,
+    'Matches':         t.nav_matches,
+    'Safety':          t.nav_safety,
+    'Success Stories': t.nav_stories,
+    'Pricing':         t.nav_pricing,
+    'Trust Center':    t.nav_trust,
   }
 
   useEffect(() => {
