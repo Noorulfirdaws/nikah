@@ -1,5 +1,6 @@
 import { ShieldCheck, Eye, AlertCircle, Lock, Users, FileCheck, UserX, Fingerprint } from 'lucide-react'
 import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 const SAFETY_ITEMS = [
   {
@@ -53,7 +54,7 @@ const SAFETY_ITEMS = [
 ]
 
 export default function Safety() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   return (
     <section id="safety" className="py-20 lg:py-28" style={{ background: 'linear-gradient(135deg, #0a2e1f 0%, #0d3d2b 60%, #0e4a35 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -86,8 +87,8 @@ export default function Safety() {
                 >
                   <Icon size={20} style={{ color: item.color }} />
                 </div>
-                <h3 className="font-bold text-white text-sm mb-2">{item.title}</h3>
-                <p className="text-white/55 text-xs leading-relaxed">{item.desc}</p>
+                <h3 className="font-bold text-white text-sm mb-2">{tr(lang, item.title)}</h3>
+                <p className="text-white/55 text-xs leading-relaxed">{tr(lang, item.desc)}</p>
               </div>
             )
           })}
@@ -96,10 +97,10 @@ export default function Safety() {
         {/* Safety commitments — platform standards, not vanity numbers */}
         <div className="mt-14 p-6 rounded-2xl text-center" style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)' }}>
           <p className="text-white font-semibold text-lg mb-1">
-            Our safety commitments to <span style={{ color: '#c9a84c' }}>every member</span>
+            {tr(lang, 'Our safety commitments to')} <span style={{ color: '#c9a84c' }}>{tr(lang, 'every member')}</span>
           </p>
           <p className="text-white/60 text-sm">
-            Human moderators operate across time zones. These are standards we hold ourselves to — published in our Trust Center.
+            {tr(lang, 'Human moderators operate across time zones. These are standards we hold ourselves to — published in our Trust Center.')}
           </p>
           <div className="flex flex-wrap justify-center gap-6 mt-5">
             {[
@@ -110,12 +111,12 @@ export default function Safety() {
             ].map(([val, label]) => (
               <div key={label} className="text-center">
                 <p className="text-xl font-bold" style={{ color: '#c9a84c' }}>{val}</p>
-                <p className="text-white/50 text-xs">{label}</p>
+                <p className="text-white/50 text-xs">{tr(lang, label)}</p>
               </div>
             ))}
           </div>
           <a href="/trust" className="inline-block mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: '#c9a84c', color: '#1a1a2e' }}>
-            Visit the Trust Center
+            {tr(lang, 'Visit the Trust Center')}
           </a>
         </div>
       </div>

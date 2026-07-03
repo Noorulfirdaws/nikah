@@ -1,5 +1,6 @@
 import { UserPlus, Fingerprint, ClipboardCheck, Sparkles, MessageCircle, Users } from 'lucide-react'
 import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 const STEPS = [
   {
@@ -53,7 +54,7 @@ const STEPS = [
 ]
 
 export default function HowItWorks() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   return (
     <section id="how-it-works" className="py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -97,8 +98,8 @@ export default function HowItWorks() {
                     STEP {step.number}
                   </span>
 
-                  <h3 className="font-bold text-gray-800 mb-2 text-sm leading-snug">{step.title}</h3>
-                  <p className="text-gray-500 text-xs leading-relaxed mb-3">{step.desc}</p>
+                  <h3 className="font-bold text-gray-800 mb-2 text-sm leading-snug">{tr(lang, step.title)}</h3>
+                  <p className="text-gray-500 text-xs leading-relaxed mb-3">{tr(lang, step.desc)}</p>
 
                   {/* Highlight chips */}
                   <div className="flex flex-col gap-1 w-full">
@@ -108,7 +109,7 @@ export default function HowItWorks() {
                         className="text-xs px-2 py-1 rounded-lg text-left"
                         style={{ background: `${step.color}10`, color: step.color }}
                       >
-                        ✓ {h}
+                        ✓ {tr(lang, h)}
                       </span>
                     ))}
                   </div>
@@ -127,7 +128,7 @@ export default function HowItWorks() {
           >
             {t.hero_cta_free}
           </a>
-          <p className="text-gray-400 text-sm mt-3">No credit card required · Cancel anytime</p>
+          <p className="text-gray-400 text-sm mt-3">{tr(lang, 'No credit card required · Cancel anytime')}</p>
         </div>
       </div>
     </section>

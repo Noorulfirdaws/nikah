@@ -1,4 +1,6 @@
 import { CreditCard, ScanFace, Smartphone, HeartHandshake, ShieldAlert, Users, UserCheck, Lock, Ban } from 'lucide-react'
+import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 const TRUST_ITEMS = [
   { icon: CreditCard,     label: 'Government ID Verification' },
@@ -13,6 +15,7 @@ const TRUST_ITEMS = [
 ]
 
 export default function TrustBar() {
+  const { lang } = useLang()
   return (
     <section aria-label="Trust and verification standards" className="py-6 border-b border-gray-100 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -22,7 +25,7 @@ export default function TrustBar() {
             return (
               <div key={item.label} className="flex items-center gap-2 text-gray-600">
                 <Icon size={15} style={{ color: '#1a6b4a' }} />
-                <span className="text-xs font-medium whitespace-nowrap">{item.label}</span>
+                <span className="text-xs font-medium whitespace-nowrap">{tr(lang, item.label)}</span>
               </div>
             )
           })}

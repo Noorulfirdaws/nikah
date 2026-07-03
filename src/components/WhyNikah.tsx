@@ -1,4 +1,6 @@
 import { UserX, Banknote, MessagesSquare, ShieldOff, Users, HeartOff } from 'lucide-react'
+import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 // The real problems Muslims face on generic matrimonial/dating apps — and what Nikah does about each.
 const PROBLEMS = [
@@ -41,19 +43,19 @@ const PROBLEMS = [
 ]
 
 export default function WhyNikah() {
+  const { lang } = useLang()
   return (
     <section id="why-nikah" className="py-20 lg:py-28" style={{ background: '#faf9f6' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
           <span className="inline-block text-sm font-semibold px-4 py-1.5 rounded-full mb-4" style={{ background: 'rgba(201,74,74,0.1)', color: '#c94a4a' }}>
-            ⚠️ Why Nikah Exists
+            {tr(lang, '⚠️ Why Nikah Exists')}
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: '#1a1a2e' }}>
-            The Problems Other Platforms Ignore
+            {tr(lang, 'The Problems Other Platforms Ignore')}
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-            Muslims seeking marriage deserve better than fake profiles, scams, and casual chatting.
-            Nikah was built to remove each of these obstacles.
+            {tr(lang, 'Muslims seeking marriage deserve better than fake profiles, scams, and casual chatting. Nikah was built to remove each of these obstacles.')}
           </p>
         </div>
 
@@ -66,9 +68,9 @@ export default function WhyNikah() {
                   <Icon size={20} style={{ color: item.color }} />
                 </div>
                 <h3 className="font-bold text-gray-800 mb-1 text-sm">
-                  <span className="line-through opacity-60">{item.problem}</span>
+                  <span className="line-through opacity-60">{tr(lang, item.problem)}</span>
                 </h3>
-                <p className="text-gray-500 text-xs leading-relaxed">{item.solution}</p>
+                <p className="text-gray-500 text-xs leading-relaxed">{tr(lang, item.solution)}</p>
               </div>
             )
           })}

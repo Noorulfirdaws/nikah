@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Heart, Star, MapPin, MessageCircle, Shield, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 
 function PhoneMockup() {
@@ -176,7 +177,7 @@ function PhoneMockup() {
 }
 
 export default function Hero() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   return (
     <section
       className="relative min-h-screen flex items-center hero-gradient pattern-overlay overflow-hidden"
@@ -232,7 +233,7 @@ export default function Hero() {
               ].map(stat => (
                 <div key={stat.label} className="text-center">
                   <p className="text-2xl font-bold text-white">{stat.value}</p>
-                  <p className="text-white/60 text-xs">{stat.label}</p>
+                  <p className="text-white/60 text-xs">{tr(lang, stat.label)}</p>
                 </div>
               ))}
             </div>
@@ -268,7 +269,7 @@ export default function Hero() {
                   key={chip}
                   className="text-xs px-3 py-1.5 rounded-full text-white/80 glass"
                 >
-                  {chip}
+                  {tr(lang, chip)}
                 </span>
               ))}
             </div>
@@ -282,7 +283,7 @@ export default function Hero() {
 
         {/* Country flags scroll */}
         <div className="mt-16 pt-8 border-t border-white/10">
-          <p className="text-center text-white/50 text-xs uppercase tracking-widest mb-4">Serving Muslim communities in 50+ countries</p>
+          <p className="text-center text-white/50 text-xs uppercase tracking-widest mb-4">{tr(lang, 'Serving Muslim communities in 50+ countries')}</p>
           <div className="flex flex-wrap justify-center gap-3">
             {['🇺🇸','🇬🇧','🇨🇦','🇫🇷','🇩🇪','🇹🇷','🇸🇦','🇦🇪','🇵🇰','🇮🇳','🇧🇩','🇲🇾','🇮🇩','🇪🇬','🇲🇦','🇩🇿','🇸🇴','🇳🇬','🇿🇦','🇶🇦'].map((flag, i) => (
               <span key={i} className="text-2xl opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-default select-none">{flag}</span>

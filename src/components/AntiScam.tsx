@@ -1,4 +1,6 @@
 import { Ban, ShieldAlert, Scale, RefreshCcw } from 'lucide-react'
+import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 // Behavior Nikah explicitly prohibits — a defensive, user-protection commitment.
 const PROHIBITED = [
@@ -21,19 +23,19 @@ const ENFORCEMENT = [
 ]
 
 export default function AntiScam() {
+  const { lang } = useLang()
   return (
     <section id="anti-scam" className="py-20 lg:py-28" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #23233d 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
           <span className="inline-block text-sm font-semibold px-4 py-1.5 rounded-full mb-4" style={{ background: 'rgba(201,74,74,0.25)', color: '#ff9d9d' }}>
-            🚫 Our Anti-Scam Commitment
+            {tr(lang, '🚫 Our Anti-Scam Commitment')}
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Zero Tolerance. Enforced by Systems and People.
+            {tr(lang, 'Zero Tolerance. Enforced by Systems and People.')}
           </h2>
           <p className="text-white/60 max-w-2xl mx-auto text-lg">
-            Marriage scams target hopeful people at their most trusting. We treat scam prevention
-            as a core product feature — not a help-center page.
+            {tr(lang, 'Marriage scams target hopeful people at their most trusting. We treat scam prevention as a core product feature — not a help-center page.')}
           </p>
         </div>
 
@@ -41,12 +43,12 @@ export default function AntiScam() {
           {/* Prohibited list */}
           <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-              <Ban size={18} style={{ color: '#ff9d9d' }} /> Never allowed on Nikah
+              <Ban size={18} style={{ color: '#ff9d9d' }} /> {tr(lang, 'Never allowed on Nikah')}
             </h3>
             <ul className="grid sm:grid-cols-2 gap-2">
               {PROHIBITED.map(p => (
                 <li key={p} className="text-white/70 text-sm flex items-start gap-2">
-                  <span style={{ color: '#ff9d9d' }}>✕</span> {p}
+                  <span style={{ color: '#ff9d9d' }}>✕</span> {tr(lang, p)}
                 </li>
               ))}
             </ul>
@@ -62,8 +64,8 @@ export default function AntiScam() {
                     <Icon size={18} style={{ color: '#c9a84c' }} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm mb-1">{e.title}</h4>
-                    <p className="text-white/55 text-xs leading-relaxed">{e.desc}</p>
+                    <h4 className="font-bold text-white text-sm mb-1">{tr(lang, e.title)}</h4>
+                    <p className="text-white/55 text-xs leading-relaxed">{tr(lang, e.desc)}</p>
                   </div>
                 </div>
               )

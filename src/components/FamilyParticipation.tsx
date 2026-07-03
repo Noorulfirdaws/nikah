@@ -1,4 +1,6 @@
 import { Users, UserCheck, Search, FileCheck, MessagesSquare, LayoutDashboard, Lightbulb, Eye } from 'lucide-react'
+import { useLang } from '../lib/LanguageContext'
+import { tr } from '../lib/tr'
 
 const FAMILY_FEATURES = [
   { icon: Users,           title: 'Parent Accounts',            desc: 'Parents can hold their own linked account to follow and support the search.' },
@@ -12,19 +14,19 @@ const FAMILY_FEATURES = [
 ]
 
 export default function FamilyParticipation() {
+  const { lang } = useLang()
   return (
     <section id="family" className="py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
           <span className="inline-block text-sm font-semibold px-4 py-1.5 rounded-full mb-4" style={{ background: 'rgba(124,77,190,0.1)', color: '#7c4dbe' }}>
-            👨‍👩‍👧 Family Participation
+            {tr(lang, '👨‍👩‍👧 Family Participation')}
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: '#1a1a2e' }}>
-            Marriage Is a Family Matter — So Is Nikah
+            {tr(lang, 'Marriage Is a Family Matter — So Is Nikah')}
           </h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-            The only platform where wali and family involvement is a first-class feature,
-            not an afterthought. Every family tool is optional and controlled by you.
+            {tr(lang, 'The only platform where wali and family involvement is a first-class feature, not an afterthought. Every family tool is optional and controlled by you.')}
           </p>
         </div>
 
@@ -36,8 +38,8 @@ export default function FamilyParticipation() {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: 'rgba(124,77,190,0.1)' }}>
                   <Icon size={18} style={{ color: '#7c4dbe' }} />
                 </div>
-                <h3 className="font-bold text-gray-800 text-sm mb-1">{f.title}</h3>
-                <p className="text-gray-500 text-xs leading-relaxed">{f.desc}</p>
+                <h3 className="font-bold text-gray-800 text-sm mb-1">{tr(lang, f.title)}</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{tr(lang, f.desc)}</p>
               </div>
             )
           })}
