@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { genSalt, hashPassword } from '../lib/security'
 import {
   LayoutDashboard, Users, Flag, ShieldAlert, BarChart3, Settings,
   Search, Bell, LogOut, Eye, EyeOff, CheckCircle,
@@ -935,7 +936,8 @@ function AnalyticsView() {
   )
 }
 
-interface Credentials { username: string; password: string }
+// Password is never stored in plaintext — only a salted SHA-256 hash.
+interface Credentials { username: string; salt: string; passwordHash: string }
 
 function SettingsView({
   credentials,
@@ -954,16 +956,23 @@ function SettingsView({
   const [credErr,   setCredErr]   = useState('')
   const [credOk,    setCredOk]    = useState(false)
 
-  const saveCredentials = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false)
+
+  const saveCredentials = async (e: React.FormEvent) => {
     e.preventDefault()
     setCredErr(''); setCredOk(false)
 
-    if (curPass !== credentials.password) { setCredErr('Current password is incorrect.'); return }
+    const curHash = await hashPassword(curPass, credentials.salt)
+    if (curHash !== credentials.passwordHash) { setCredErr('Current password is incorrect.'); return }
     if (!newUser.trim() || newUser.trim().length < 3) { setCredErr('New username must be at least 3 characters.'); return }
     if (newPass.length < 8) { setCredErr('New password must be at least 8 characters.'); return }
     if (newPass !== confPass) { setCredErr('New passwords do not match.'); return }
 
-    onChangeCredentials({ username: newUser.trim(), password: newPass })
+    setBusy(true)
+    const salt = genSalt()
+    const passwordHash = await hashPassword(newPass, salt)
+    setBusy(false)
+    onChangeCredentials({ username: newUser.trim(), salt, passwordHash })
     setCurPass(''); setNewUser(''); setNewPass(''); setConfPass('')
     setCredOk(true)
     setTimeout(() => setCredOk(false), 4000)
@@ -980,7 +989,7 @@ function SettingsView({
         </h3>
         <p className="text-xs text-gray-400 mb-5">
           Current username: <strong className="text-gray-700 font-mono">{credentials.username}</strong>
-          {' · '}Password: <strong className="text-gray-700 font-mono">{'•'.repeat(credentials.password.length)}</strong>
+          {' · '}Password: <strong className="text-gray-700 font-mono">••••••••</strong>
         </p>
 
         {credOk && (
@@ -1075,10 +1084,11 @@ function SettingsView({
           <div className="flex items-center gap-3 pt-1">
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+              disabled={busy}
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg, #1a6b4a, #2d9b6f)' }}
             >
-              Save New Credentials
+              {busy ? 'Saving…' : 'Save New Credentials'}
             </button>
             <p className="text-xs text-gray-400">
               Changes take effect on your next login session.
@@ -1157,6 +1167,113 @@ function SettingsView({
   )
 }
 
+// ─── First-run Setup ────────────────────────────────────────────────────────
+// Runs whenever no admin credentials exist on this device yet. There is no
+// default account — the operator must create one before anything is
+// reachable, closing the "known default password" hole entirely.
+
+function AdminSetup({ onCreated }: { onCreated: (c: Credentials) => void }) {
+  const [username, setUsername] = useState('')
+  const [pass1, setPass1] = useState('')
+  const [pass2, setPass2] = useState('')
+  const [showPass, setShowPass] = useState(false)
+  const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErr('')
+    if (username.trim().length < 3) { setErr('Username must be at least 3 characters.'); return }
+    if (pass1.length < 8) { setErr('Password must be at least 8 characters.'); return }
+    if (pass1 !== pass2) { setErr('Passwords do not match.'); return }
+
+    setBusy(true)
+    const salt = genSalt()
+    const passwordHash = await hashPassword(pass1, salt)
+    setBusy(false)
+    onCreated({ username: username.trim(), salt, passwordHash })
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: SIDEBAR_BG }}>
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style={{ background: 'linear-gradient(135deg, #1a6b4a, #2d9b6f)' }}>
+            <span className="text-white font-bold text-2xl leading-none">ن</span>
+          </div>
+          <h1 className="text-xl font-bold text-white">Set Up Admin Access</h1>
+          <p className="text-white/50 text-sm mt-1">No admin account exists on this device yet</p>
+        </div>
+
+        <form onSubmit={submit} className="bg-white/5 border border-white/10 rounded-3xl p-7 space-y-4 backdrop-blur-sm">
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1.5">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={e => { setUsername(e.target.value); setErr('') }}
+              placeholder="Choose a username"
+              maxLength={50}
+              autoComplete="username"
+              className="w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-colors border border-white/10 focus:border-white/30"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1.5">Password</label>
+            <div className="relative">
+              <input
+                type={showPass ? 'text' : 'password'}
+                value={pass1}
+                onChange={e => { setPass1(e.target.value); setErr('') }}
+                placeholder="8+ characters"
+                maxLength={128}
+                autoComplete="new-password"
+                className="w-full px-4 py-2.5 pr-10 rounded-xl text-sm text-white outline-none transition-colors border border-white/10 focus:border-white/30"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
+              />
+              <button type="button" onClick={() => setShowPass(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1.5">Confirm Password</label>
+            <input
+              type={showPass ? 'text' : 'password'}
+              value={pass2}
+              onChange={e => { setPass2(e.target.value); setErr('') }}
+              maxLength={128}
+              autoComplete="new-password"
+              className="w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-colors border border-white/10 focus:border-white/30"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
+            />
+          </div>
+
+          {err && (
+            <div className="flex items-center gap-2 p-3 rounded-xl text-xs" style={{ background: 'rgba(220,38,38,0.15)', color: '#fca5a5' }}>
+              <AlertTriangle size={12} className="flex-shrink-0" /> {err}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #1a6b4a, #2d9b6f)' }}
+          >
+            {busy ? 'Creating…' : 'Create Admin Account'}
+          </button>
+        </form>
+
+        <p className="text-center text-xs text-white/25 mt-6">
+          🔒 Stored hashed, on this device only
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Login Gate ───────────────────────────────────────────────────────────────
 
 function AdminLogin({
@@ -1170,10 +1287,14 @@ function AdminLogin({
   const [pass, setPass] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (user === credentials.username && pass === credentials.password) {
+    setBusy(true)
+    const hash = await hashPassword(pass, credentials.salt)
+    setBusy(false)
+    if (user === credentials.username && hash === credentials.passwordHash) {
       onLogin()
     } else {
       setErr(`Invalid credentials — check username and password.`)
@@ -1201,7 +1322,7 @@ function AdminLogin({
                 type="text"
                 value={user}
                 onChange={e => { setUser(e.target.value); setErr('') }}
-                placeholder={credentials.username}
+                placeholder="Username"
                 maxLength={50}
                 autoComplete="username"
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white outline-none transition-colors border border-white/10 focus:border-white/30"
@@ -1237,14 +1358,15 @@ function AdminLogin({
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+            disabled={busy}
+            className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
             style={{ background: 'linear-gradient(135deg, #1a6b4a, #2d9b6f)' }}
           >
-            Sign In to Admin Panel
+            {busy ? 'Checking…' : 'Sign In to Admin Panel'}
           </button>
 
           <div className="flex items-center gap-2 p-3 rounded-xl text-xs text-white/40 border border-white/10">
-            <Smartphone size={12} /> Two-factor authentication required for production
+            <Smartphone size={12} /> Local device access only — not a substitute for backend authentication
           </div>
         </form>
 
@@ -1707,15 +1829,17 @@ export default function AdminPage() {
   const [loggedIn, setLoggedIn]       = useState(false)
   const [view, setView]               = useState('overview')
   const [collapsed, setCollapsed]     = useState(false)
-  const [credentials, setCredentials] = useState<Credentials>(() => {
+  // No default credentials ship with the app — until a real account is
+  // created on this device, `credentials` is null and AdminSetup runs.
+  const [credentials, setCredentials] = useState<Credentials | null>(() => {
     try {
       const saved = localStorage.getItem('nikah_admin_creds')
       if (saved) {
         const parsed = JSON.parse(saved) as Credentials
-        if (parsed.username && parsed.password) return parsed
+        if (parsed.username && parsed.salt && parsed.passwordHash) return parsed
       }
     } catch { /* ignore */ }
-    return { username: 'admin', password: 'admin123' }
+    return null
   })
 
   // ── Live mutable state for users and reports ──
@@ -1747,6 +1871,10 @@ export default function AdminPage() {
   const handleChangeCredentials = (c: Credentials) => {
     setCredentials(c)
     try { localStorage.setItem('nikah_admin_creds', JSON.stringify(c)) } catch { /* ignore */ }
+  }
+
+  if (!credentials) {
+    return <AdminSetup onCreated={handleChangeCredentials} />
   }
 
   if (!loggedIn) {

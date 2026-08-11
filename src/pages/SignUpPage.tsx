@@ -8,6 +8,7 @@ import {
 import PageHero from '../components/PageHero'
 import PasswordStrength from '../components/PasswordStrength'
 import { sanitizePlan, isValidEmail, LIMITS, type PlanId } from '../lib/security'
+import { registerAccount, saveToken, ApiError, API_CONNECTED } from '../lib/api'
 
 // ─── Plan definitions ─────────────────────────────────────────────────────────
 
@@ -118,6 +119,7 @@ export default function SignUpPage() {
   const [submitting,   setSubmitting]   = useState(false)
   const [lastSubmitMs, setLastSubmitMs] = useState(0)
   const [emailError,   setEmailError]   = useState('')
+  const [submitError,  setSubmitError]  = useState('')
 
   const [form, setForm] = useState({
     gender:      '',
@@ -183,7 +185,7 @@ export default function SignUpPage() {
     return true
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1 && !isValidEmail(form.email)) {
       setEmailError('Please enter a valid email address')
       return
@@ -196,7 +198,35 @@ export default function SignUpPage() {
     if (submitting || now - lastSubmitMs < 5000) return
     setSubmitting(true)
     setLastSubmitMs(now)
-    setTimeout(() => { setSubmitting(false); setSubmitted(true) }, 700)
+    setSubmitError('')
+
+    if (!API_CONNECTED) {
+      // No backend configured — keep the old demo-only behavior.
+      setTimeout(() => { setSubmitting(false); setSubmitted(true) }, 700)
+      return
+    }
+
+    try {
+      const { token } = await registerAccount({
+        name:     `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
+        email:    form.email,
+        password: form.password,
+        gender:   form.gender === 'Sister' ? 'SISTER' : 'BROTHER',
+        country:  form.country || undefined,
+      })
+      saveToken(token)
+      setSubmitting(false)
+      setSubmitted(true)
+    } catch (e) {
+      setSubmitting(false)
+      if (e instanceof ApiError) {
+        setSubmitError(e.status === 409
+          ? 'An account with this email already exists.'
+          : e.message)
+      } else {
+        setSubmitError('Could not reach the server. Please try again.')
+      }
+    }
   }
 
   const activePlan = PLANS.find(p => p.id === plan)!
@@ -302,11 +332,13 @@ export default function SignUpPage() {
       />
 
       <div className="max-w-lg mx-auto px-4 py-10">
-        {/* Demo disclaimer */}
+        {/* Connection status disclaimer */}
         <div className="flex items-start gap-2 px-4 py-3 rounded-xl mb-6 text-xs text-blue-700 border border-blue-100" style={{ background: '#eff6ff' }}>
           <Info size={14} className="flex-shrink-0 mt-0.5 text-blue-500" />
           <span>
-            <strong>Demo only</strong> — no real account is created and no data is transmitted or stored. This is a front-end prototype.
+            {API_CONNECTED
+              ? <><strong>Connected to nikah-api</strong> — this creates a real account in the local database.</>
+              : <><strong>Demo only</strong> — no real account is created and no data is transmitted or stored. This is a front-end prototype.</>}
           </span>
         </div>
 
@@ -887,6 +919,12 @@ export default function SignUpPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {submitError && (
+            <div className="flex items-center gap-2 px-4 py-3 rounded-xl mt-5 text-sm text-red-700 border border-red-100" style={{ background: '#fef2f2' }}>
+              <AlertTriangle size={15} className="flex-shrink-0" /> {submitError}
             </div>
           )}
 

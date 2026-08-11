@@ -97,6 +97,27 @@ export function checkPasswordStrength(password: string): PasswordStrengthResult 
 }
 
 // ---------------------------------------------------------------------------
+// Local credential hashing (demo admin gate)
+// ---------------------------------------------------------------------------
+// The admin portal is a client-side prototype; real authentication belongs in
+// nikah-api. Until then, never keep the password in plaintext: store only a
+// salted SHA-256 hash so localStorage/backup inspection doesn't reveal it.
+
+/** Random 16-byte hex salt. */
+export function genSalt(): string {
+  const bytes = new Uint8Array(16)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Salted SHA-256 (hex) via WebCrypto. */
+export async function hashPassword(password: string, salt: string): Promise<string> {
+  const data = new TextEncoder().encode(`${salt}:${password}`)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('')
+}
+
+// ---------------------------------------------------------------------------
 // Input length limits (characters)
 // ---------------------------------------------------------------------------
 
