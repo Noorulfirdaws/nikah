@@ -58,6 +58,15 @@ export function loginAccount(input: { email: string; password: string }): Promis
   return request('/api/auth/login', { method: 'POST', body: JSON.stringify(input) })
 }
 
+export function sendContactMessage(input: {
+  name: string
+  email: string
+  subject?: string
+  message: string
+}): Promise<{ received: true; id: string }> {
+  return request('/api/contact', { method: 'POST', body: JSON.stringify(input) })
+}
+
 const TOKEN_KEY = 'nikah_token'
 
 export function saveToken(token: string) {
