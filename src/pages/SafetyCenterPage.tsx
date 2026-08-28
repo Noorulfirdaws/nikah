@@ -27,7 +27,7 @@ export default function SafetyCenterPage() {
           <AlertTriangle size={24} className="text-red-500 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-bold text-gray-900 mb-1">Immediate safety concern?</p>
-            <p className="text-sm text-gray-600 mb-2">If you believe you are in immediate danger, contact local emergency services first. For urgent safety reports on Nikah, email <strong>safety@nikahapp.com</strong> — we respond within 2 hours, 24/7.</p>
+            <p className="text-sm text-gray-600 mb-2">If you believe you are in immediate danger, contact local emergency services first. For urgent safety reports on Nikah, email <strong>safety@nikahapp.com</strong> — our target is to respond within 24 hours.</p>
             <Link to="/contact" className="text-sm font-semibold hover:underline" style={{ color: '#c94a4a' }}>File an urgent report →</Link>
           </div>
         </div>
@@ -37,9 +37,9 @@ export default function SafetyCenterPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">How we protect you</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { icon: ShieldCheck, title: 'Identity Verification', desc: 'Optional photo selfie and ID check. Verified users get a badge. We verify within 24 hours.', color: '#1a6b4a' },
-              { icon: Flag, title: 'Report & Block', desc: 'Report any profile or message in seconds. Block any user without explanation. We act on every report.', color: '#c94a4a' },
-              { icon: Phone, title: '24/7 Safety Team', desc: 'A dedicated trust and safety team operates round the clock across all time zones.', color: '#2d6fa5' },
+              { icon: ShieldCheck, title: 'Identity Verification', desc: 'Government ID, face, and phone verification. Our target is to review every submission within 24 hours — see the Trust Center for how this works.', color: '#1a6b4a' },
+              { icon: Flag, title: 'Report & Block', desc: 'Report any profile or message in seconds. Block any user without explanation. Every report is reviewed by a moderator.', color: '#c94a4a' },
+              { icon: Phone, title: 'Human Moderation', desc: 'Reports and verification submissions are reviewed by people, not just automated systems. Response-time targets are published in our Trust Center.', color: '#2d6fa5' },
             ].map(item => {
               const Icon = item.icon
               return (
@@ -71,17 +71,22 @@ export default function SafetyCenterPage() {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Commitments — targets we publish and are held to, not measured
+            claims we haven't earned yet. See Trust Center for methodology. */}
         <div className="rounded-3xl p-8 text-center" style={{ background: 'linear-gradient(135deg, #0a2e1f, #1a6b4a)' }}>
-          <h2 className="text-xl font-bold text-white mb-6">Our safety record</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {[['99.2%', 'Scam detection rate'], ['< 2hr', 'Report response time'], ['100%', 'Profiles moderated'], ['24/7', 'Safety team active']].map(([v, l]) => (
+          <h2 className="text-xl font-bold text-white mb-2">Our safety commitments</h2>
+          <p className="text-white/50 text-xs mb-6">Published targets, not self-reported statistics — see the Trust Center for how each is measured.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+            {[['100%', 'Profiles human-reviewed'], ['< 24h', 'Report response target'], ['0', 'Tolerance for money requests']].map(([v, l]) => (
               <div key={l}>
                 <p className="text-2xl font-bold text-white mb-1">{v}</p>
                 <p className="text-white/60 text-xs">{l}</p>
               </div>
             ))}
           </div>
+          <Link to="/trust" className="inline-block mt-6 text-sm font-semibold hover:underline" style={{ color: '#e8c96e' }}>
+            See how we measure this →
+          </Link>
         </div>
 
         {/* Also see */}

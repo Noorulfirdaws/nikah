@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Globe, ChevronDown, Menu, X, MapPin, Download } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useLang } from '../lib/LanguageContext'
+import { hasFullContentCoverage } from '../lib/tr'
 
 const LANGUAGES = [
   { code: 'EN', name: 'English' },
@@ -166,6 +167,9 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
             <div className="relative" onClick={e => e.stopPropagation()}>
               <button
                 onClick={() => { setLangOpen(!langOpen); setCountryOpen(false) }}
+                aria-haspopup="listbox"
+                aria-expanded={langOpen}
+                aria-label={`Language: ${lang}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-black/5"
                 style={{
                   color: scrolled || !isHome ? '#555' : 'rgba(255,255,255,0.85)',
@@ -177,18 +181,30 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
                 <ChevronDown size={12} />
               </button>
               {langOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-44 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-50">
+                <div className="absolute right-0 top-full mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-50" role="listbox" aria-label="Select language">
                   <p className="px-3 py-1 text-xs text-gray-400 font-medium uppercase tracking-wide">Language</p>
-                  {LANGUAGES.map(l => (
-                    <button
-                      key={l.code}
-                      onClick={() => { setLang(l.code); setLangOpen(false) }}
-                      className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between hover:bg-emerald-50 transition-colors ${lang === l.code ? 'font-semibold text-emerald-700' : 'text-gray-700'}`}
-                    >
-                      <span>{l.name}</span>
-                      {lang === l.code && <span className="text-emerald-600 text-xs">✓</span>}
-                    </button>
-                  ))}
+                  {LANGUAGES.map(l => {
+                    const full = hasFullContentCoverage(l.code)
+                    return (
+                      <button
+                        key={l.code}
+                        role="option"
+                        aria-selected={lang === l.code}
+                        onClick={() => { setLang(l.code); setLangOpen(false) }}
+                        className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between gap-2 hover:bg-emerald-50 transition-colors ${lang === l.code ? 'font-semibold text-emerald-700' : 'text-gray-700'}`}
+                      >
+                        <span className="flex items-center gap-1.5 min-w-0">
+                          <span className="truncate">{l.name}</span>
+                          {!full && (
+                            <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: '#fef3c7', color: '#92400e' }}>
+                              partial
+                            </span>
+                          )}
+                        </span>
+                        {lang === l.code && <span className="text-emerald-600 text-xs flex-shrink-0">✓</span>}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -197,6 +213,9 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
             <div className="relative" onClick={e => e.stopPropagation()}>
               <button
                 onClick={() => { setCountryOpen(!countryOpen); setLangOpen(false) }}
+                aria-haspopup="listbox"
+                aria-expanded={countryOpen}
+                aria-label={`Country: ${currentCountry?.name ?? country}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-black/5"
                 style={{
                   color: scrolled || !isHome ? '#555' : 'rgba(255,255,255,0.85)',
@@ -208,11 +227,14 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
                 <ChevronDown size={12} />
               </button>
               {countryOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-50 max-h-72 overflow-y-auto">
-                  <p className="px-3 py-1 text-xs text-gray-400 font-medium uppercase tracking-wide">Country</p>
+                <div className="absolute right-0 top-full mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-1.5 z-50 max-h-72 overflow-y-auto" role="listbox" aria-label="Select country">
+                  <p className="px-3 pt-1 pb-0.5 text-xs text-gray-400 font-medium uppercase tracking-wide">Country</p>
+                  <p className="px-3 pb-2 text-xs text-gray-400">A display preference for now — it doesn't filter matches yet. Explore members by country on the <Link to="/#coverage" onClick={() => setCountryOpen(false)} className="underline hover:text-emerald-700">coverage map</Link>.</p>
                   {COUNTRIES.map(c => (
                     <button
                       key={c.code}
+                      role="option"
+                      aria-selected={country === c.code}
                       onClick={() => { setCountry(c.code); setCountryOpen(false) }}
                       className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-emerald-50 transition-colors ${country === c.code ? 'font-semibold text-emerald-700' : 'text-gray-700'}`}
                     >
@@ -233,6 +255,15 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
             >
               <Download size={14} />
               App
+            </Link>
+
+            {/* Sign In */}
+            <Link
+              to="/login"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:bg-black/5"
+              style={{ color: scrolled || !isHome ? '#555' : 'rgba(255,255,255,0.85)' }}
+            >
+              Sign In
             </Link>
 
             {/* Sign Up */}
@@ -283,6 +314,13 @@ export default function Header({ lang, setLang, country, setCountry }: Props) {
                 style={{ background: 'linear-gradient(135deg, #1a6b4a, #2d9b6f)' }}
               >
                 {t.nav_signup}
+              </Link>
+              <Link
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Sign In
               </Link>
             </div>
             {/* Mobile lang grid */}

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import PasswordStrength from '../components/PasswordStrength'
-import { sanitizePlan, isValidEmail, LIMITS, type PlanId } from '../lib/security'
+import { sanitizePlan, isValidEmail, isValidAge, LIMITS, type PlanId } from '../lib/security'
 import { registerAccount, saveToken, ApiError, API_CONNECTED } from '../lib/api'
 
 // ─── Plan definitions ─────────────────────────────────────────────────────────
@@ -110,15 +110,18 @@ const INTERESTS    = ['Quran & Islamic studies', 'Travel', 'Cooking', 'Fitness',
 export default function SignUpPage() {
   const [params] = useSearchParams()
   const initialPlan = sanitizePlan(params.get('plan'))
+  // Only honor an explicit "0" — any other/missing value keeps the annual default.
+  const initialAnnual = params.get('annual') !== '0'
 
   const [step,         setStep]         = useState<number>(initialPlan !== 'free' ? 1 : 0)
   const [plan,         setPlan]         = useState<PlanId>(initialPlan)
-  const [annual,       setAnnual]       = useState(true)   // annual by default
+  const [annual,       setAnnual]       = useState(initialAnnual)   // carries the Pricing page's toggle; annual by default
   const [showPass,     setShowPass]     = useState(false)
   const [submitted,    setSubmitted]    = useState(false)
   const [submitting,   setSubmitting]   = useState(false)
   const [lastSubmitMs, setLastSubmitMs] = useState(0)
   const [emailError,   setEmailError]   = useState('')
+  const [ageError,     setAgeError]     = useState('')
   const [submitError,  setSubmitError]  = useState('')
 
   const [form, setForm] = useState({
@@ -151,6 +154,8 @@ export default function SignUpPage() {
     photoBlur:      true,
     verifiedOnly:   true,
     familyVisible:  false,
+    // Consent (step 7, required before account creation)
+    termsConsent:  false,
   })
 
   const set = (k: keyof typeof form, v: string | string[] | boolean) => {
@@ -174,14 +179,14 @@ export default function SignUpPage() {
       form.firstName.trim() &&
       isValidEmail(form.email) &&
       form.password.length >= 8 &&
-      form.age
+      isValidAge(form.age)
     )
     if (step === 2) return form.verifyConsent && form.intentConfirm
     if (step === 3) return form.sect && form.prayerLevel && form.timeline
     if (step === 4) return form.children && form.living && form.relocation
     if (step === 5) return form.familyMode
     if (step === 6) return true // privacy defaults are safe
-    if (step === 7) return form.country && form.languages.length > 0
+    if (step === 7) return form.country && form.languages.length > 0 && form.termsConsent
     return true
   }
 
@@ -211,6 +216,7 @@ export default function SignUpPage() {
         name:     `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
         email:    form.email,
         password: form.password,
+        age:      Number(form.age),
         gender:   form.gender === 'Sister' ? 'SISTER' : 'BROTHER',
         country:  form.country || undefined,
       })
@@ -244,10 +250,12 @@ export default function SignUpPage() {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Nikah, {form.firstName}!</h2>
           <p className="text-gray-500 mb-1 text-sm leading-relaxed">
-            Your profile has been created. We're reviewing your information and will notify you soon.
+            Your account has been created under <strong>{form.email}</strong>. Email verification and identity
+            checks are the next step before your profile becomes visible to other members.
           </p>
           <p className="text-gray-400 text-xs mb-5">
-            Confirmation sent to <strong>{form.email}</strong>
+            You can request full account and data deletion at any time from account settings — see our{' '}
+            <Link to="/privacy" className="hover:underline" style={{ color: '#1a6b4a' }}>Privacy Policy</Link>.
           </p>
 
           {/* Plan confirmation card */}
@@ -420,6 +428,7 @@ export default function SignUpPage() {
                     <button
                       key={p.id}
                       onClick={() => setPlan(p.id)}
+                      aria-pressed={selected}
                       className="w-full text-left rounded-2xl border-2 p-4 transition-all"
                       style={{
                         borderColor: selected ? p.color : '#e5e5e5',
@@ -488,13 +497,14 @@ export default function SignUpPage() {
                 </span>
               </div>
               {/* Gender */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">I am a</label>
+              <div role="group" aria-labelledby="su-gender-label">
+                <label id="su-gender-label" className="block text-sm font-medium text-gray-700 mb-2">I am a</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['Brother', 'Sister'].map(g => (
                     <button
                       key={g}
                       onClick={() => set('gender', g)}
+                      aria-pressed={form.gender === g}
                       className="py-3 rounded-xl text-sm font-medium border-2 transition-all"
                       style={{
                         borderColor: form.gender === g ? '#1a6b4a' : '#e5e5e5',
@@ -509,9 +519,12 @@ export default function SignUpPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
+                  <label htmlFor="su-firstName" className="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
                   <input
+                    id="su-firstName"
+                    name="firstName"
                     type="text"
+                    required
                     value={form.firstName}
                     onChange={e => set('firstName', e.target.value)}
                     placeholder="Ahmed"
@@ -521,56 +534,80 @@ export default function SignUpPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
+                  <label htmlFor="su-lastName" className="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
                   <input
+                    id="su-lastName"
+                    name="lastName"
                     type="text"
+                    autoComplete="family-name"
                     value={form.lastName}
                     onChange={e => set('lastName', e.target.value)}
                     placeholder="Hassan"
                     maxLength={LIMITS.name}
-                    autoComplete="family-name"
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 transition-colors"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Age</label>
+                <label htmlFor="su-age" className="block text-sm font-medium text-gray-700 mb-1.5">Age <span className="text-gray-400 font-normal">(must be 18 or older)</span></label>
                 <input
+                  id="su-age"
+                  name="age"
                   type="number"
+                  required
+                  inputMode="numeric"
                   value={form.age}
-                  onChange={e => set('age', e.target.value)}
+                  onChange={e => { set('age', e.target.value); setAgeError('') }}
+                  onBlur={() => setAgeError(form.age && !isValidAge(form.age) ? 'You must be 18 or older to use Nikah.' : '')}
                   placeholder="25"
                   min="18"
-                  max="65"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 transition-colors"
+                  max="100"
+                  aria-invalid={!!ageError}
+                  aria-describedby={ageError ? 'su-age-error' : undefined}
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-1 transition-colors ${ageError ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-200'}`}
                 />
+                {ageError && (
+                  <p id="su-age-error" className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                    <AlertTriangle size={11} /> {ageError}
+                  </p>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                <label htmlFor="su-email" className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
                   <Mail size={14} /> Email Address
                 </label>
                 <input
+                  id="su-email"
+                  name="email"
                   type="email"
+                  required
                   value={form.email}
                   onChange={e => set('email', e.target.value)}
                   placeholder="you@email.com"
                   maxLength={LIMITS.email}
                   autoComplete="email"
+                  aria-invalid={!!emailError}
+                  aria-describedby={emailError ? 'su-email-error' : undefined}
                   className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-1 transition-colors ${emailError ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-200'}`}
                 />
                 {emailError && (
-                  <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                  <p id="su-email-error" className="text-xs text-red-400 mt-1 flex items-center gap-1">
                     <AlertTriangle size={11} /> {emailError}
                   </p>
                 )}
+                <p className="text-xs text-gray-400 mt-1.5">We'll send a verification link to this address before your profile goes live.</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                <label htmlFor="su-password" className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
                   <Lock size={14} /> Password
                 </label>
                 <div className="relative">
                   <input
+                    id="su-password"
+                    name="password"
                     type={showPass ? 'text' : 'password'}
+                    required
+                    minLength={8}
                     value={form.password}
                     onChange={e => set('password', e.target.value)}
                     placeholder="8+ characters"
@@ -582,6 +619,7 @@ export default function SignUpPage() {
                     type="button"
                     onClick={() => setShowPass(v => !v)}
                     aria-label={showPass ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPass}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -634,13 +672,14 @@ export default function SignUpPage() {
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Faith &amp; values</h3>
                 <p className="text-sm text-gray-400">Help us find your most compatible matches</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sect &amp; Tradition</label>
+              <div role="group" aria-labelledby="su-sect-label">
+                <label id="su-sect-label" className="block text-sm font-medium text-gray-700 mb-2">Sect &amp; Tradition</label>
                 <div className="grid grid-cols-2 gap-2">
                   {SECTS.map(s => (
                     <button
                       key={s}
                       onClick={() => set('sect', s)}
+                      aria-pressed={form.sect === s}
                       className="py-2.5 px-3 rounded-xl text-xs font-medium border-2 transition-all text-left"
                       style={{
                         borderColor: form.sect === s ? '#1a6b4a' : '#e5e5e5',
@@ -653,13 +692,14 @@ export default function SignUpPage() {
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Prayer Practice</label>
+              <div role="group" aria-labelledby="su-prayer-label">
+                <label id="su-prayer-label" className="block text-sm font-medium text-gray-700 mb-2">Prayer Practice</label>
                 <div className="space-y-2">
                   {PRAYER_LEVELS.map(p => (
                     <button
                       key={p}
                       onClick={() => set('prayerLevel', p)}
+                      aria-pressed={form.prayerLevel === p}
                       className="w-full py-2.5 px-4 rounded-xl text-sm border-2 transition-all text-left flex items-center justify-between"
                       style={{
                         borderColor: form.prayerLevel === p ? '#1a6b4a' : '#e5e5e5',
@@ -673,13 +713,14 @@ export default function SignUpPage() {
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Marriage Timeline</label>
+              <div role="group" aria-labelledby="su-timeline-label">
+                <label id="su-timeline-label" className="block text-sm font-medium text-gray-700 mb-2">Marriage Timeline</label>
                 <div className="space-y-2">
                   {TIMELINES.map(t => (
                     <button
                       key={t}
                       onClick={() => set('timeline', t)}
+                      aria-pressed={form.timeline === t}
                       className="w-full py-2.5 px-4 rounded-xl text-sm border-2 transition-all text-left flex items-center justify-between"
                       style={{
                         borderColor: form.timeline === t ? '#1a6b4a' : '#e5e5e5',
@@ -708,13 +749,14 @@ export default function SignUpPage() {
                 ['Living arrangements', 'living', LIVING_PREFS],
                 ['Relocation', 'relocation', RELOCATION_PREFS],
               ] as const).map(([label, key, options]) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                <div key={key} role="group" aria-labelledby={`su-${key}-label`}>
+                  <label id={`su-${key}-label`} className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {options.map(o => (
                       <button
                         key={o}
                         onClick={() => set(key, o)}
+                        aria-pressed={form[key] === o}
                         className="py-2.5 px-3 rounded-xl text-xs font-medium border-2 transition-all text-left"
                         style={{
                           borderColor: form[key] === o ? '#1a6b4a' : '#e5e5e5',
@@ -738,11 +780,12 @@ export default function SignUpPage() {
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Family participation</h3>
                 <p className="text-sm text-gray-400">How would you like your family or wali involved?</p>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2" role="group" aria-label="Family participation mode">
                 {FAMILY_MODES.map(m => (
                   <button
                     key={m}
                     onClick={() => set('familyMode', m)}
+                    aria-pressed={form.familyMode === m}
                     className="w-full py-3 px-4 rounded-xl text-sm border-2 transition-all text-left flex items-center justify-between"
                     style={{
                       borderColor: form.familyMode === m ? '#1a6b4a' : '#e5e5e5',
@@ -756,10 +799,12 @@ export default function SignUpPage() {
                 ))}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="su-waliName" className="block text-sm font-medium text-gray-700 mb-1.5">
                   Wali / guardian name <span className="text-gray-400 font-normal text-xs">(optional — can be added later)</span>
                 </label>
                 <input
+                  id="su-waliName"
+                  name="waliName"
                   type="text"
                   value={form.waliName}
                   onChange={e => set('waliName', e.target.value)}
@@ -805,8 +850,11 @@ export default function SignUpPage() {
                 <p className="text-sm text-gray-400">Location, languages, and a little about you</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Country</label>
+                <label htmlFor="su-country" className="block text-sm font-medium text-gray-700 mb-1.5">Country</label>
                 <select
+                  id="su-country"
+                  name="country"
+                  required
                   value={form.country}
                   onChange={e => set('country', e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 bg-white"
@@ -816,8 +864,10 @@ export default function SignUpPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">City (optional)</label>
+                <label htmlFor="su-city" className="block text-sm font-medium text-gray-700 mb-1.5">City (optional)</label>
                 <input
+                  id="su-city"
+                  name="city"
                   type="text"
                   value={form.city}
                   onChange={e => set('city', e.target.value)}
@@ -827,7 +877,7 @@ export default function SignUpPage() {
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 transition-colors"
                 />
               </div>
-              <div>
+              <div role="group" aria-label="Languages I speak">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Languages I Speak <span className="text-gray-400 font-normal text-xs">(select all)</span>
                 </label>
@@ -836,6 +886,7 @@ export default function SignUpPage() {
                     <button
                       key={l}
                       onClick={() => toggle('languages', l)}
+                      aria-pressed={form.languages.includes(l)}
                       className="px-3 py-1.5 rounded-full text-xs font-medium border-2 transition-all"
                       style={{
                         borderColor: form.languages.includes(l) ? '#1a6b4a' : '#e5e5e5',
@@ -854,7 +905,7 @@ export default function SignUpPage() {
           {/* ── Step 7 (continued): interests, bio, summary ── */}
           {step === 7 && (
             <div className="space-y-5 mt-5">
-              <div>
+              <div role="group" aria-label="Interests">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Interests <span className="text-gray-400 font-normal text-xs">(choose up to 8)</span>
                 </label>
@@ -866,6 +917,7 @@ export default function SignUpPage() {
                         if (form.interests.includes(interest) || form.interests.length < 8)
                           toggle('interests', interest)
                       }}
+                      aria-pressed={form.interests.includes(interest)}
                       className="px-3 py-1.5 rounded-full text-xs font-medium border-2 transition-all"
                       style={{
                         borderColor: form.interests.includes(interest) ? '#1a6b4a' : '#e5e5e5',
@@ -880,18 +932,21 @@ export default function SignUpPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="su-bio" className="block text-sm font-medium text-gray-700 mb-1.5">
                   Short Bio <span className="text-gray-400 font-normal text-xs">(optional)</span>
                 </label>
                 <textarea
+                  id="su-bio"
+                  name="bio"
                   value={form.bio}
                   onChange={e => set('bio', e.target.value)}
                   placeholder="Share a bit about who you are, your values, and what you're looking for in a spouse…"
                   rows={4}
                   maxLength={LIMITS.bio}
+                  aria-describedby="su-bio-count"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 transition-colors resize-none"
                 />
-                <p className="text-xs text-gray-400 text-right mt-1">{form.bio.length}/{LIMITS.bio}</p>
+                <p id="su-bio-count" className="text-xs text-gray-400 text-right mt-1">{form.bio.length}/{LIMITS.bio}</p>
               </div>
               {/* Summary */}
               <div className="p-4 rounded-2xl space-y-1.5" style={{ background: 'rgba(26,107,74,0.06)' }}>
@@ -919,6 +974,34 @@ export default function SignUpPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Consent — required before account creation */}
+              <label
+                htmlFor="su-terms-consent"
+                className="flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all"
+                style={{ borderColor: form.termsConsent ? '#1a6b4a' : '#e5e5e5' }}
+              >
+                <input
+                  id="su-terms-consent"
+                  type="checkbox"
+                  required
+                  checked={form.termsConsent}
+                  onChange={e => set('termsConsent', e.target.checked)}
+                  className="mt-0.5 accent-emerald-700"
+                />
+                <span className="text-sm text-gray-600">
+                  I confirm I am at least 18 years old, and I agree to the{' '}
+                  <Link to="/terms" target="_blank" rel="noopener noreferrer" className="font-medium hover:underline" style={{ color: '#1a6b4a' }}>Terms of Service</Link>
+                  {' '}and{' '}
+                  <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium hover:underline" style={{ color: '#1a6b4a' }}>Privacy Policy</Link>.
+                </span>
+              </label>
+              <p className="text-xs text-gray-400 px-1 leading-relaxed">
+                We use your data to run your profile, match you with compatible members, and keep the community
+                safe — never to sell to advertisers. You can request full account and data deletion at any time
+                from your settings or by contacting us — see the{' '}
+                <Link to="/privacy" className="hover:underline" style={{ color: '#1a6b4a' }}>Privacy Policy</Link> for details.
+              </p>
             </div>
           )}
 
@@ -964,7 +1047,7 @@ export default function SignUpPage() {
 
           <p className="text-center text-xs text-gray-400 mt-4">
             Already have an account?{' '}
-            <Link to="/" className="font-medium hover:underline" style={{ color: '#1a6b4a' }}>Sign in</Link>
+            <Link to="/login" className="font-medium hover:underline" style={{ color: '#1a6b4a' }}>Sign in</Link>
           </p>
         </div>
 

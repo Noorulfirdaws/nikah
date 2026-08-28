@@ -53,7 +53,7 @@ const FAQ_SECTIONS = [
       },
       {
         q: 'How do the language filters work?',
-        a: 'You can add all the languages you speak to your profile and set which languages you\'d prefer your match to speak. The app supports 13 languages for its interface, including Arabic (RTL) and Urdu (RTL).',
+        a: 'You can add all the languages you speak to your profile and set which languages you\'d prefer your match to speak. The app supports 12 languages for its interface, including Arabic (RTL) and Urdu (RTL).',
       },
       {
         q: 'What is Wali Mode?',

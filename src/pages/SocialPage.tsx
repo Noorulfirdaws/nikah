@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ExternalLink, Bell, BellOff, Heart, Share2, Check, Users } from 'lucide-react'
+import { ArrowLeft, Bell, BellOff, Users } from 'lucide-react'
 
 // ─── Branded SVG icons ────────────────────────────────────────────────────────
 
@@ -38,6 +38,10 @@ function IconYouTube({ size = 22 }: { size?: number }) {
 
 type PlatformIcon = React.ComponentType<{ size?: number }>
 
+// No official Nikah social accounts exist yet on any platform — these pages
+// are an honest "not live yet" state, not a simulation of a real presence.
+// Real follower/post counts and a fabricated activity feed were removed;
+// don't reintroduce placeholder numbers here without a real account to back them.
 const PLATFORMS: Record<string, {
   name: string
   handle: string
@@ -45,87 +49,44 @@ const PLATFORMS: Record<string, {
   bg: string
   Icon: PlatformIcon
   description: string
-  followers: string
-  posts: string
-  cta: string
-  url: string
 }> = {
   twitter: {
     name: 'X / Twitter',
-    handle: '@NikahApp',
+    handle: 'Not live yet',
     color: '#000000',
     bg: '#f7f7f7',
     Icon: IconX,
-    description: 'Follow us for daily Islamic relationship tips, success stories, app updates, and community highlights.',
-    followers: '12.4K',
-    posts: '890',
-    cta: 'Follow on X',
-    url: 'https://twitter.com',
+    description: 'We plan to share Islamic relationship guidance, success stories, and app updates here once we launch.',
   },
   instagram: {
     name: 'Instagram',
-    handle: '@nikah.app',
+    handle: 'Not live yet',
     color: '#E1306C',
     bg: '#fff0f5',
     Icon: IconInstagram,
-    description: "Beautiful content about Islamic marriage, couple stories, du'a reminders, and halal love. Follow for daily inspiration.",
-    followers: '38.7K',
-    posts: '2,140',
-    cta: 'Follow on Instagram',
-    url: 'https://instagram.com',
+    description: "We plan to share content about Islamic marriage, couple stories, and du'a reminders here once we launch.",
   },
   facebook: {
     name: 'Facebook',
-    handle: 'Nikah — Muslim Marriage App',
+    handle: 'Not live yet',
     color: '#1877F2',
     bg: '#f0f5ff',
     Icon: IconFacebook,
-    description: 'Join our Facebook community to connect with Muslim singles and families, read success stories, and stay informed about events.',
-    followers: '24.1K',
-    posts: '1,560',
-    cta: 'Like our Page',
-    url: 'https://facebook.com',
+    description: 'We plan to build a Facebook community for Muslim singles and families here once we launch.',
   },
   youtube: {
     name: 'YouTube',
-    handle: 'Nikah App',
+    handle: 'Not live yet',
     color: '#FF0000',
     bg: '#fff5f5',
     Icon: IconYouTube,
-    description: 'Watch Islamic marriage advice, wali guides, app tutorials, scholar interviews, and real couple testimonials.',
-    followers: '9.8K',
-    posts: '145',
-    cta: 'Subscribe',
-    url: 'https://youtube.com',
+    description: 'We plan to share Islamic marriage advice, wali guides, and app tutorials here once we launch.',
   },
 }
 
-const RECENT_POSTS = [
-  { id: 1, type: 'tip',     text: '💡 Tip: Always involve your wali from the very first conversation. It\'s a blessing, not a burden.', likes: 847,  platform: 'instagram' },
-  { id: 2, type: 'hadith',  text: '📖 "There is nothing like marriage for two who love each other." — Ibn Majah', likes: 1204, platform: 'twitter'   },
-  { id: 3, type: 'update',  text: '🚀 New feature: Advanced filters are now live! Find matches by sect, language, and timeline.', likes: 523,  platform: 'facebook'  },
-  { id: 4, type: 'story',   text: '💍 Alhamdulillah! Fatima & Ahmed met on Nikah 8 months ago and just got married. May Allah bless them!', likes: 2341, platform: 'instagram' },
-  { id: 5, type: 'video',   text: '🎥 New video: "How to write a profile that reflects your deen" — watch now on YouTube.', likes: 678,  platform: 'youtube'   },
-  { id: 6, type: 'tip',     text: '💡 Remember: A successful nikah starts with sincere intention (niyyah). Keep it for the sake of Allah.', likes: 991,  platform: 'twitter'   },
-]
-
-function PlatformPage({ platformKey, current }: { platformKey: string; current: typeof PLATFORMS[string] }) {
+function PlatformPage({ current }: { current: typeof PLATFORMS[string] }) {
   const [notified, setNotified] = useState(false)
-  const [copiedId, setCopiedId] = useState<number | null>(null)
-  const posts = RECENT_POSTS.filter(p => p.platform === platformKey)
   const CurrentIcon = current.Icon
-
-  const handleShare = (postId: number, text: string) => {
-    const url = window.location.href
-    if (navigator.share) {
-      navigator.share({ text, url }).catch(() => {})
-    } else {
-      navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
-        setCopiedId(postId)
-        setTimeout(() => setCopiedId(null), 2000)
-      })
-    }
-  }
 
   return (
       <div style={{ paddingTop: 64, minHeight: '100vh', background: current.bg }}>
@@ -157,69 +118,25 @@ function PlatformPage({ platformKey, current }: { platformKey: string; current: 
               <p className="text-sm font-medium mb-1" style={{ color: current.color }}>{current.handle}</p>
               <p className="text-sm text-gray-500 mb-4 leading-relaxed">{current.description}</p>
 
-              {/* Stats */}
-              <div className="flex gap-6 mb-5">
-                <div className="text-center">
-                  <p className="text-lg font-bold text-gray-800">{current.followers}</p>
-                  <p className="text-xs text-gray-400">Followers</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold text-gray-800">{current.posts}</p>
-                  <p className="text-xs text-gray-400">Posts</p>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <div className="flex gap-3">
-                <a
-                  href={current.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-3 rounded-2xl text-sm font-semibold text-white text-center flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
-                  style={{ background: current.color }}
-                >
-                  <ExternalLink size={14} />
-                  {current.cta}
-                </a>
-                <button
-                  onClick={() => setNotified(v => !v)}
-                  className="px-4 py-3 rounded-2xl border text-sm font-medium transition-colors flex items-center gap-1.5"
-                  style={notified
-                    ? { background: '#f0fdf4', borderColor: '#bbf7d0', color: '#1a6b4a' }
-                    : { borderColor: '#e5e7eb', color: '#4b5563' }}
-                >
-                  {notified ? <><BellOff size={14} /> Notified</> : <><Bell size={14} /> Notify me</>}
-                </button>
-              </div>
+              {/* Notify — the one real action available here */}
+              <button
+                onClick={() => setNotified(v => !v)}
+                aria-pressed={notified}
+                className="w-full px-4 py-3 rounded-2xl border text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
+                style={notified
+                  ? { background: '#f0fdf4', borderColor: '#bbf7d0', color: '#1a6b4a' }
+                  : { borderColor: '#e5e7eb', color: '#4b5563' }}
+              >
+                {notified ? <><BellOff size={14} /> We'll notify you</> : <><Bell size={14} /> Notify me when it launches</>}
+              </button>
             </div>
           </div>
 
-          {/* Recent posts */}
-          <h2 className="text-base font-bold text-gray-700 mb-3">Recent posts</h2>
-          {posts.length > 0 ? (
-            <div className="space-y-3">
-              {posts.map(post => (
-                <div key={post.id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-                  <p className="text-sm text-gray-700 leading-relaxed mb-3">{post.text}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-400">
-                    <span className="flex items-center gap-1"><Heart size={11} /> {post.likes.toLocaleString()} likes</span>
-                    <button
-                      onClick={() => handleShare(post.id, post.text)}
-                      className="flex items-center gap-1 hover:text-gray-600 transition-colors"
-                    >
-                      {copiedId === post.id ? <><Check size={11} /> Copied!</> : <><Share2 size={11} /> Share</>}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center shadow-sm">
-              <span className="flex justify-center mb-2" style={{ color: current.color }}><CurrentIcon size={36} /></span>
-              <p className="text-sm font-medium text-gray-600 mb-1">No posts to show yet</p>
-              <p className="text-xs text-gray-400">Follow us on {current.name} to stay updated.</p>
-            </div>
-          )}
+          <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center shadow-sm">
+            <span className="flex justify-center mb-2" style={{ color: current.color }}><CurrentIcon size={36} /></span>
+            <p className="text-sm font-medium text-gray-600 mb-1">Not live yet</p>
+            <p className="text-xs text-gray-400">We haven't launched an official {current.name} account. Check back soon, or use the button above to get notified.</p>
+          </div>
         </div>
       </div>
     )
@@ -230,7 +147,7 @@ export default function SocialPage() {
   const current = platform ? PLATFORMS[platform] : null
 
   if (current) {
-    return <PlatformPage platformKey={platform!} current={current} />
+    return <PlatformPage current={current} />
   }
 
   // ── Social hub (all platforms) ──────────────────────────────────────────────
@@ -247,7 +164,7 @@ export default function SocialPage() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Follow Nikah</h1>
           <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
-            Stay connected — daily inspiration, Islamic marriage tips, app updates, and beautiful success stories.
+            We haven't launched our official social accounts yet. Get notified the moment each one goes live.
           </p>
         </div>
 
@@ -273,40 +190,15 @@ export default function SocialPage() {
               </div>
               <p className="text-xs text-gray-500 leading-relaxed mb-3 line-clamp-2">{p.description}</p>
               <div className="flex items-center justify-between">
-                <div className="flex gap-4">
-                  <span className="text-xs text-gray-400"><strong className="text-gray-700">{p.followers}</strong> followers</span>
-                  <span className="text-xs text-gray-400"><strong className="text-gray-700">{p.posts}</strong> posts</span>
-                </div>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: '#f3f4f6', color: '#6b7280' }}>
+                  Not live yet
+                </span>
                 <span className="text-xs font-semibold flex items-center gap-1" style={{ color: p.color }}>
                   View <ArrowLeft size={11} className="rotate-180" />
                 </span>
               </div>
             </Link>
           ))}
-        </div>
-
-        {/* Recent feed */}
-        <h2 className="text-base font-bold text-gray-700 mb-4">Latest from our community</h2>
-        <div className="space-y-3">
-          {RECENT_POSTS.map(post => {
-            const platform = PLATFORMS[post.platform]
-            return (
-              <Link
-                key={post.id}
-                to={`/social/${post.platform}`}
-                className="block bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-all"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span style={{ color: platform.color }}><platform.Icon size={14} /></span>
-                  <span className="text-xs font-medium" style={{ color: platform.color }}>{platform.name}</span>
-                </div>
-                <p className="text-sm text-gray-700 leading-relaxed mb-2">{post.text}</p>
-                <span className="text-xs text-gray-400 flex items-center gap-1">
-                  <Heart size={10} /> {post.likes.toLocaleString()} likes
-                </span>
-              </Link>
-            )
-          })}
         </div>
       </div>
     </div>

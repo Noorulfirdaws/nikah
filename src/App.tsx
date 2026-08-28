@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage'
 // and never touch most of these routes (especially /admin, which alone was
 // a large share of the single-bundle weight).
 const SignUpPage              = lazy(() => import('./pages/SignUpPage'))
+const LoginPage               = lazy(() => import('./pages/LoginPage'))
 const HelpPage                = lazy(() => import('./pages/HelpPage'))
 const AboutPage               = lazy(() => import('./pages/AboutPage'))
 const CareersPage             = lazy(() => import('./pages/CareersPage'))
@@ -20,7 +21,7 @@ const CookiesPage             = lazy(() => import('./pages/CookiesPage'))
 const ContactPage             = lazy(() => import('./pages/ContactPage'))
 const DownloadPage            = lazy(() => import('./pages/DownloadPage'))
 const NotFoundPage            = lazy(() => import('./pages/NotFoundPage'))
-const AdminPage               = lazy(() => import('./pages/AdminPage'))
+const AdminPage                = lazy(() => import('./pages/AdminPage'))
 const SocialPage              = lazy(() => import('./pages/SocialPage'))
 
 function RouteFallback() {
@@ -44,6 +45,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/careers" element={<CareersPage />} />

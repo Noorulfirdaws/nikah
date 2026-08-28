@@ -1,7 +1,7 @@
 import { Check, Star, Zap, Users } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLang } from '../lib/LanguageContext'
-import PaymentModal from './PaymentModal'
 
 // Annual pricing = yearly total (monthly equivalent shown beneath)
 // e.g. Premium: $119.88/yr ≈ $9.99/mo vs $14.99/mo billed monthly → saves $60/yr
@@ -67,8 +67,8 @@ const SAVE_PCT = 33  // ~33% saved vs monthly
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(true)
-  const [payingPlan, setPayingPlan] = useState<string | null>(null)
   const { t } = useLang()
+  const navigate = useNavigate()
 
   return (
     <section id="pricing" className="py-20 lg:py-28" style={{ background: '#faf8f4' }}>
@@ -234,9 +234,9 @@ export default function Pricing() {
                   ))}
                 </ul>
 
-                {/* CTA button */}
+                {/* CTA button — carries the selected plan into the real signup flow */}
                 <button
-                  onClick={() => setPayingPlan(plan.id)}
+                  onClick={() => navigate(`/signup?plan=${plan.id}&annual=${annual ? '1' : '0'}`)}
                   className="w-full py-3 rounded-2xl font-semibold text-sm transition-all hover:opacity-90 hover:shadow-md hover:-translate-y-0.5"
                   style={
                     plan.featured || plan.id === 'family'
@@ -267,22 +267,6 @@ export default function Pricing() {
           ))}
         </div>
       </div>
-
-      {/* Payment modal — opens when a plan CTA is clicked */}
-      {payingPlan && payingPlan !== 'free' && (
-        <PaymentModal
-          planId={payingPlan as 'premium' | 'family'}
-          annual={annual}
-          onClose={() => setPayingPlan(null)}
-        />
-      )}
-      {payingPlan === 'free' && (
-        <PaymentModal
-          planId="free"
-          annual={false}
-          onClose={() => setPayingPlan(null)}
-        />
-      )}
     </section>
   )
 }

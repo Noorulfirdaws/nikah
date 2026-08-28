@@ -59,6 +59,23 @@ export function isValidEmail(email: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// Age eligibility
+// ---------------------------------------------------------------------------
+
+export const MIN_AGE = 18
+export const MAX_AGE = 100
+
+/**
+ * Nikah is 18+ only. Returns false for empty, non-numeric, or out-of-range
+ * values — a bare "truthy string" check would let "10" or "abc" through.
+ */
+export function isValidAge(raw: string): boolean {
+  if (!raw.trim()) return false
+  const n = Number(raw)
+  return Number.isInteger(n) && n >= MIN_AGE && n <= MAX_AGE
+}
+
+// ---------------------------------------------------------------------------
 // Password strength
 // ---------------------------------------------------------------------------
 

@@ -2,6 +2,7 @@ import { Globe, MapPin, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../lib/LanguageContext'
+import { hasFullContentCoverage } from '../lib/tr'
 
 const LANGUAGES = [
   { code: 'EN', name: 'English' },
@@ -231,6 +232,9 @@ export default function Footer({ lang, setLang, country, setCountry }: Props) {
             <div className="relative">
               <button
                 onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); setCountryOpen(false) }}
+                aria-haspopup="listbox"
+                aria-expanded={langOpen}
+                aria-label={`Language: ${lang}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white/90 transition-colors"
                 style={{ background: 'rgba(255,255,255,0.08)' }}
               >
@@ -240,20 +244,34 @@ export default function Footer({ lang, setLang, country, setCountry }: Props) {
               </button>
               {langOpen && (
                 <div
-                  className="absolute bottom-full mb-1.5 right-0 w-44 rounded-2xl py-1.5 z-50 shadow-2xl max-h-56 overflow-y-auto"
+                  role="listbox"
+                  aria-label="Select language"
+                  className="absolute bottom-full mb-1.5 right-0 w-52 rounded-2xl py-1.5 z-50 shadow-2xl max-h-56 overflow-y-auto"
                   style={{ background: '#0d3d2b', border: '1px solid rgba(255,255,255,0.1)' }}
                   onClick={e => e.stopPropagation()}
                 >
-                  {LANGUAGES.map(l => (
-                    <button
-                      key={l.code}
-                      onClick={() => { setLang(l.code); setLangOpen(false) }}
-                      className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-white/10 transition-colors ${lang === l.code ? 'font-semibold text-white' : 'text-white/60'}`}
-                    >
-                      <span>{l.name}</span>
-                      {lang === l.code && <span className="text-emerald-400 text-xs">✓</span>}
-                    </button>
-                  ))}
+                  {LANGUAGES.map(l => {
+                    const full = hasFullContentCoverage(l.code)
+                    return (
+                      <button
+                        key={l.code}
+                        role="option"
+                        aria-selected={lang === l.code}
+                        onClick={() => { setLang(l.code); setLangOpen(false) }}
+                        className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between gap-2 hover:bg-white/10 transition-colors ${lang === l.code ? 'font-semibold text-white' : 'text-white/60'}`}
+                      >
+                        <span className="flex items-center gap-1.5 min-w-0">
+                          <span className="truncate">{l.name}</span>
+                          {!full && (
+                            <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(251,191,36,0.2)', color: '#fbbf24' }}>
+                              partial
+                            </span>
+                          )}
+                        </span>
+                        {lang === l.code && <span className="text-emerald-400 text-xs flex-shrink-0">✓</span>}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -262,6 +280,9 @@ export default function Footer({ lang, setLang, country, setCountry }: Props) {
             <div className="relative">
               <button
                 onClick={(e) => { e.stopPropagation(); setCountryOpen(!countryOpen); setLangOpen(false) }}
+                aria-haspopup="listbox"
+                aria-expanded={countryOpen}
+                aria-label={`Country: ${currentCountry?.name ?? country}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white/90 transition-colors"
                 style={{ background: 'rgba(255,255,255,0.08)' }}
               >
@@ -271,13 +292,18 @@ export default function Footer({ lang, setLang, country, setCountry }: Props) {
               </button>
               {countryOpen && (
                 <div
+                  role="listbox"
+                  aria-label="Select country"
                   className="absolute bottom-full mb-1.5 right-0 w-52 rounded-2xl py-1.5 z-50 shadow-2xl max-h-64 overflow-y-auto"
                   style={{ background: '#0d3d2b', border: '1px solid rgba(255,255,255,0.1)' }}
                   onClick={e => e.stopPropagation()}
                 >
+                  <p className="px-3 pb-1.5 text-[11px] text-white/40 leading-snug">A display preference — doesn't filter matches yet.</p>
                   {COUNTRIES.map(c => (
                     <button
                       key={c.code}
+                      role="option"
+                      aria-selected={country === c.code}
                       onClick={() => { setCountry(c.code); setCountryOpen(false) }}
                       className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-white/10 transition-colors ${country === c.code ? 'font-semibold text-white' : 'text-white/60'}`}
                     >

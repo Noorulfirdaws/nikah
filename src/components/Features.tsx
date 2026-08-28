@@ -145,7 +145,7 @@ const FEATURES: (FeatureDetail & { category: string })[] = [
     color: '#c9a84c',
     title: 'Language Filters',
     tagline: 'Match with someone you can truly communicate with',
-    description: 'Language is the foundation of communication and deep connection. Nikah supports 13 languages and lets you filter matches by the languages they speak — fluently or conversationally. Find someone you can speak your mother tongue with, or someone who bridges cultures through shared language.',
+    description: 'Language is the foundation of communication and deep connection. Nikah supports 12 languages and lets you filter matches by the languages they speak — fluently or conversationally. Find someone you can speak your mother tongue with, or someone who bridges cultures through shared language.',
     howItWorks: [
       'Add all languages you speak to your profile with fluency levels.',
       'Set your language preferences for a spouse.',
@@ -153,7 +153,7 @@ const FEATURES: (FeatureDetail & { category: string })[] = [
       'Browse by specific language communities.',
     ],
     benefits: [
-      'Full app experience in 13 languages',
+      'Full app experience in 12 languages',
       'Filter by mother tongue or secondary languages',
       'RTL support for Arabic and Urdu',
       'Connect across language communities',

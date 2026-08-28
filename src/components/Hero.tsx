@@ -132,8 +132,9 @@ function PhoneMockup() {
         </div>
       </div>
 
-      {/* Floating cards */}
-      <div className="absolute left-0 top-24 animate-float2" style={{ animationDelay: '0.3s' }}>
+      {/* Floating cards — decorative flourishes only; hidden on narrow
+          screens so they never clip awkwardly against the phone mockup */}
+      <div className="hidden sm:block absolute left-0 top-24 animate-float2" style={{ animationDelay: '0.3s' }}>
         <div className="glass rounded-xl p-3 w-36" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: '#c9a84c' }}>YK</div>
@@ -149,7 +150,7 @@ function PhoneMockup() {
         </div>
       </div>
 
-      <div className="absolute right-0 bottom-32 animate-float" style={{ animationDelay: '1s' }}>
+      <div className="hidden sm:block absolute right-0 bottom-32 animate-float" style={{ animationDelay: '1s' }}>
         <div className="glass rounded-xl p-3 w-36" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: '#2d6fa5' }}>FM</div>
@@ -166,7 +167,7 @@ function PhoneMockup() {
       </div>
 
       {/* New match notification */}
-      <div className="absolute right-2 top-16 animate-fade-in">
+      <div className="hidden sm:block absolute right-2 top-16 animate-fade-in">
         <div className="glass rounded-xl px-3 py-2" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
           <p className="text-white text-xs font-medium">✨ New match!</p>
           <p className="text-white/60 text-xs">3 new profiles today</p>

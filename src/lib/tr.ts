@@ -576,3 +576,14 @@ const DICTS: Partial<Record<LangCode, Dict>> = { FR, AR, SO }
 export function tr(lang: string, s: string): string {
   return DICTS[lang as LangCode]?.[s] ?? s
 }
+
+/**
+ * Languages with a full content dictionary (nav, headers, AND section body
+ * copy). Every language translates nav/headers via i18n.ts, but only these
+ * also translate the homepage's long-form section content — the rest
+ * silently fall back to English body text. Used to label the language
+ * switcher honestly instead of implying full localization everywhere.
+ */
+export function hasFullContentCoverage(lang: string): boolean {
+  return lang === 'EN' || lang in DICTS
+}

@@ -47,6 +47,7 @@ export function registerAccount(input: {
   name: string
   email: string
   password: string
+  age: number
   gender: 'BROTHER' | 'SISTER'
   country?: string
 }): Promise<AuthResponse> {
