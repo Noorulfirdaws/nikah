@@ -1,4 +1,5 @@
 import { ShieldCheck, Eye, AlertCircle, Lock, Users, FileCheck, UserX, Fingerprint } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useLang } from '../lib/LanguageContext'
 import { tr } from '../lib/tr'
 
@@ -115,9 +116,9 @@ export default function Safety() {
               </div>
             ))}
           </div>
-          <a href="/trust" className="inline-block mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: '#c9a84c', color: '#1a1a2e' }}>
+          <Link to="/trust" className="inline-block mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style={{ background: '#c9a84c', color: '#1a1a2e' }}>
             {tr(lang, 'Visit the Trust Center')}
-          </a>
+          </Link>
         </div>
       </div>
     </section>

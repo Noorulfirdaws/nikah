@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Search, Send, CheckCircle, AlertTriangle, Rocket, ShieldCheck, Heart, CreditCard } from 'lucide-react'
+import { ChevronDown, ChevronUp, Search, Send, CheckCircle, AlertTriangle, Rocket, ShieldCheck, Heart, CreditCard, Info } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { Link } from 'react-router-dom'
 import { isValidEmail, LIMITS } from '../lib/security'
+import { sendContactMessage, ApiError, API_CONNECTED } from '../lib/api'
 
 const CATEGORY_CARDS = [
   { Icon: Rocket,      label: 'Getting Started',    id: 'getting-started', color: '#f97316', bg: '#fff7ed' },
@@ -111,6 +112,7 @@ export default function HelpPage() {
   const [submitting, setSubmitting] = useState(false)
   const [lastSubmitMs, setLastSubmitMs] = useState(0)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState('')
 
   const filteredFAQs = FAQ_SECTIONS.map(section => ({
     ...section,
@@ -119,7 +121,7 @@ export default function HelpPage() {
     ),
   })).filter(s => s.questions.length > 0)
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     const errs: Record<string, string> = {}
     if (!contactForm.name.trim()) errs.name = 'Name is required'
@@ -131,12 +133,29 @@ export default function HelpPage() {
     if (submitting || now - lastSubmitMs < 5000) return
 
     setFormErrors({})
+    setSubmitError('')
     setSubmitting(true)
     setLastSubmitMs(now)
-    setTimeout(() => {
+
+    if (!API_CONNECTED) {
+      setSubmitting(false)
+      setSubmitError('The help form is unavailable in offline demo mode.')
+      return
+    }
+
+    try {
+      await sendContactMessage({
+        name: contactForm.name,
+        email: contactForm.email,
+        subject: contactForm.topic ? `Help: ${contactForm.topic}` : 'Help Center enquiry',
+        message: contactForm.message,
+      })
       setSubmitting(false)
       setSent(true)
-    }, 700)
+    } catch (err) {
+      setSubmitting(false)
+      setSubmitError(err instanceof ApiError ? err.message : 'Could not reach the server. Please try again, or email hello@nikahapp.com.')
+    }
   }
 
   return (
@@ -257,14 +276,17 @@ export default function HelpPage() {
             {sent ? (
               <div className="text-center py-6">
                 <CheckCircle size={40} className="mx-auto mb-3" style={{ color: '#1a6b4a' }} />
-                <h3 className="font-bold text-gray-900 mb-2">Message sent!</h3>
-                <p className="text-sm text-gray-500">We'll get back to you at <strong>{contactForm.email}</strong> within 4 hours.</p>
+                <h3 className="font-bold text-gray-900 mb-2">Message received!</h3>
+                <p className="text-sm text-gray-500">Thank you. Your message has been logged for our team to review — our target is to respond within 24 hours at <strong>{contactForm.email}</strong>.</p>
               </div>
             ) : (
               <form onSubmit={handleSend} className="space-y-4" noValidate>
                 <h3 className="font-bold text-gray-900">Send a message</h3>
                 <div>
+                  <label htmlFor="hc-name" className="sr-only">Your name</label>
                   <input
+                    id="hc-name"
+                    name="name"
                     required
                     type="text"
                     placeholder="Your name"
@@ -272,12 +294,16 @@ export default function HelpPage() {
                     onChange={e => { setContactForm(f => ({ ...f, name: e.target.value })); setFormErrors(er => ({ ...er, name: '' })) }}
                     maxLength={LIMITS.name}
                     autoComplete="name"
+                    aria-invalid={!!formErrors.name}
                     className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:ring-1 ${formErrors.name ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'}`}
                   />
                   {formErrors.name && <p className="text-xs text-red-400 mt-1 flex items-center gap-1"><AlertTriangle size={10} />{formErrors.name}</p>}
                 </div>
                 <div>
+                  <label htmlFor="hc-email" className="sr-only">Email address</label>
                   <input
+                    id="hc-email"
+                    name="email"
                     required
                     type="email"
                     placeholder="Email address"
@@ -285,11 +311,15 @@ export default function HelpPage() {
                     onChange={e => { setContactForm(f => ({ ...f, email: e.target.value })); setFormErrors(er => ({ ...er, email: '' })) }}
                     maxLength={LIMITS.email}
                     autoComplete="email"
+                    aria-invalid={!!formErrors.email}
                     className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:ring-1 ${formErrors.email ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'}`}
                   />
                   {formErrors.email && <p className="text-xs text-red-400 mt-1 flex items-center gap-1"><AlertTriangle size={10} />{formErrors.email}</p>}
                 </div>
+                <label htmlFor="hc-topic" className="sr-only">Topic</label>
                 <select
+                  id="hc-topic"
+                  name="topic"
                   value={contactForm.topic}
                   onChange={e => setContactForm(f => ({ ...f, topic: e.target.value }))}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 bg-white"
@@ -303,13 +333,17 @@ export default function HelpPage() {
                   <option>Other</option>
                 </select>
                 <div>
+                  <label htmlFor="hc-message" className="sr-only">Message</label>
                   <textarea
+                    id="hc-message"
+                    name="message"
                     required
                     placeholder="How can we help you?"
                     rows={4}
                     value={contactForm.message}
                     onChange={e => { setContactForm(f => ({ ...f, message: e.target.value })); setFormErrors(er => ({ ...er, message: '' })) }}
                     maxLength={LIMITS.message}
+                    aria-invalid={!!formErrors.message}
                     className={`w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors resize-none focus:ring-1 ${formErrors.message ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-100'}`}
                   />
                   <div className="flex justify-between mt-1">
@@ -320,6 +354,17 @@ export default function HelpPage() {
                     <p className="text-xs text-gray-400">{contactForm.message.length}/{LIMITS.message}</p>
                   </div>
                 </div>
+                {submitError && (
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-red-700 border border-red-100" style={{ background: '#fef2f2' }}>
+                    <AlertTriangle size={15} className="flex-shrink-0" /> {submitError}
+                  </div>
+                )}
+                {!API_CONNECTED && (
+                  <div className="flex items-start gap-2 px-4 py-3 rounded-xl text-xs text-blue-700 border border-blue-100" style={{ background: '#eff6ff' }}>
+                    <Info size={13} className="flex-shrink-0 mt-0.5 text-blue-500" />
+                    <span>Offline demo mode — this form can't reach a backend right now.</span>
+                  </div>
+                )}
                 <button
                   type="submit"
                   disabled={submitting}

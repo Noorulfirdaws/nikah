@@ -67,6 +67,10 @@ export function sendContactMessage(input: {
   return request('/api/contact', { method: 'POST', body: JSON.stringify(input) })
 }
 
+export function subscribeNewsletter(email: string): Promise<{ subscribed: true }> {
+  return request('/api/newsletter', { method: 'POST', body: JSON.stringify({ email }) })
+}
+
 const TOKEN_KEY = 'nikah_token'
 
 export function saveToken(token: string) {

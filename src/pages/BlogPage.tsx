@@ -3,6 +3,7 @@ import PageHero from '../components/PageHero'
 import Modal from '../components/Modal'
 import { Clock, User, Tag, ChevronRight, BookOpen } from 'lucide-react'
 import { isValidEmail, LIMITS } from '../lib/security'
+import { subscribeNewsletter, ApiError, API_CONNECTED } from '../lib/api'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Each section holds a `content` array.
@@ -621,18 +622,34 @@ function Newsletter() {
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
   const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const submit = () => {
+  const submit = async () => {
     if (!isValidEmail(email)) { setErr('Please enter a valid email address.'); return }
-    setErr(''); setDone(true)
+    setErr('')
+
+    if (!API_CONNECTED) {
+      setErr('Newsletter signup is unavailable in offline demo mode.')
+      return
+    }
+
+    setBusy(true)
+    try {
+      await subscribeNewsletter(email)
+      setBusy(false)
+      setDone(true)
+    } catch (e) {
+      setBusy(false)
+      setErr(e instanceof ApiError ? e.message : 'Could not reach the server. Please try again.')
+    }
   }
 
   if (done) {
     return (
       <div className="mt-16 rounded-3xl p-8 text-center" style={{ background: 'rgba(26,107,74,0.06)' }}>
         <div className="text-3xl mb-2">✅</div>
-        <p className="text-lg font-bold text-gray-900 mb-1">You're subscribed!</p>
-        <p className="text-gray-500 text-sm">We'll send new articles to <strong>{email}</strong> every week.</p>
+        <p className="text-lg font-bold text-gray-900 mb-1">You're on the list</p>
+        <p className="text-gray-500 text-sm"><strong>{email}</strong> will get new articles once the weekly digest launches.</p>
       </div>
     )
   }
@@ -641,23 +658,29 @@ function Newsletter() {
     <div className="mt-16 rounded-3xl p-8 text-center" style={{ background: 'rgba(26,107,74,0.06)' }}>
       <p className="text-2xl font-bold text-gray-900 mb-2">Stay inspired</p>
       <p className="text-gray-500 mb-5 text-sm">
-        Get new articles on Islamic marriage, relationships, and community stories every week.
+        Get new articles on Islamic marriage, relationships, and community stories, delivered when the weekly digest launches.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <label htmlFor="nl-email" className="sr-only">Email address</label>
         <input
+          id="nl-email"
+          name="email"
           type="email"
           value={email}
           onChange={e => { setEmail(e.target.value); setErr('') }}
+          onKeyDown={e => { if (e.key === 'Enter') submit() }}
           placeholder="Your email address"
           maxLength={LIMITS.newsletter}
+          aria-invalid={!!err}
           className={`flex-1 px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${err ? 'border-red-400' : 'border-gray-200 focus:border-emerald-500'}`}
         />
         <button
           onClick={submit}
-          className="px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+          disabled={busy}
+          className="px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60"
           style={{ background: 'linear-gradient(135deg, #1a6b4a, #2d9b6f)' }}
         >
-          Subscribe
+          {busy ? 'Adding…' : 'Subscribe'}
         </button>
       </div>
       {err && <p className="text-xs text-red-500 mt-2">{err}</p>}

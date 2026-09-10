@@ -1,7 +1,9 @@
 import PageHero from '../components/PageHero'
 import { Link } from 'react-router-dom'
-import { MapPin, Globe, X, Upload, CheckCircle } from 'lucide-react'
+import { MapPin, Globe, X, Mail, Copy, Check } from 'lucide-react'
 import { useState } from 'react'
+
+const CAREERS_EMAIL = 'careers@nikahapp.com'
 
 const JOBS = [
   { title: 'Senior Frontend Engineer',       dept: 'Engineering', location: 'Remote',        type: 'Full-time', highlight: true  },
@@ -27,21 +29,17 @@ const PERKS = [
 interface Job { title: string; dept: string; location: string; type: string; highlight: boolean }
 
 function ApplyModal({ job, onClose }: { job: Job; onClose: () => void }) {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', linkedin: '', message: '' })
-  const [submitted, setSubmitted] = useState(false)
-  const [fileName, setFileName] = useState('')
+  const [copied, setCopied] = useState(false)
+  const subject = `Application: ${job.title}`
+  const body = `Hi Nikah team,\n\nI'd like to apply for the ${job.title} role (${job.dept}, ${job.location}).\n\nMy CV is attached. A short note on why I'm a good fit:\n\n\n\nName:\nLinkedIn / portfolio:\nLocation & time zone:\n`
+  const mailto = `mailto:${CAREERS_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm(prev => ({ ...prev, [k]: e.target.value }))
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setFileName(e.target.files[0].name)
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real app this would POST to an API
-    setSubmitted(true)
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(CAREERS_EMAIL)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* clipboard unavailable — the address is shown in plain text anyway */ }
   }
 
   return (
@@ -49,6 +47,9 @@ function ApplyModal({ job, onClose }: { job: Job; onClose: () => void }) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Apply for ${job.title}`}
     >
       <div
         className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
@@ -58,6 +59,7 @@ function ApplyModal({ job, onClose }: { job: Job; onClose: () => void }) {
         <div className="px-7 pt-7 pb-5 border-b border-gray-100">
           <button
             onClick={onClose}
+            aria-label="Close"
             className="absolute top-5 right-5 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
           >
             <X size={18} className="text-gray-400" />
@@ -68,112 +70,37 @@ function ApplyModal({ job, onClose }: { job: Job; onClose: () => void }) {
           <h2 className="text-xl font-bold text-gray-900">{job.title}</h2>
         </div>
 
-        {/* Body */}
-        <div className="px-7 py-6 max-h-[70vh] overflow-y-auto">
-          {submitted ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center gap-4">
-              <CheckCircle size={52} style={{ color: '#1a6b4a' }} />
-              <h3 className="text-xl font-bold text-gray-900">Application Sent!</h3>
-              <p className="text-gray-500 text-sm max-w-xs">
-                Thank you, <strong>{form.name}</strong>. We'll review your application and get back to you at <strong>{form.email}</strong> within 5–7 business days.
-              </p>
-              <button
-                onClick={onClose}
-                className="mt-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
-                style={{ background: 'linear-gradient(135deg,#1a6b4a,#2d9b6f)' }}
-              >
-                Close
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full name */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name *</label>
-                <input
-                  required
-                  value={form.name}
-                  onChange={set('name')}
-                  placeholder="Your full name"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
-                />
-              </div>
+        {/* Body — honest email-based application (no CV storage exists yet) */}
+        <div className="px-7 py-6">
+          <p className="text-sm text-gray-600 leading-relaxed mb-4">
+            To apply, email your CV and a short cover note to our recruiting inbox. Use the button below to open
+            a pre-filled message, or copy the address and attach your CV yourself.
+          </p>
 
-              {/* Email */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Email Address *</label>
-                <input
-                  required
-                  type="email"
-                  value={form.email}
-                  onChange={set('email')}
-                  placeholder="you@example.com"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
-                />
-              </div>
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 mb-4">
+            <span className="text-sm font-mono text-gray-700 truncate">{CAREERS_EMAIL}</span>
+            <button
+              onClick={copyEmail}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium flex-shrink-0 transition-colors"
+              style={copied
+                ? { background: '#f0fdf4', color: '#1a6b4a' }
+                : { background: 'rgba(26,107,74,0.08)', color: '#1a6b4a' }}
+            >
+              {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
+            </button>
+          </div>
 
-              {/* Phone */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={set('phone')}
-                  placeholder="+1 234 567 8900"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
-                />
-              </div>
+          <a
+            href={mailto}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-md"
+            style={{ background: 'linear-gradient(135deg,#1a6b4a,#2d9b6f)' }}
+          >
+            <Mail size={15} /> Open email to apply
+          </a>
 
-              {/* LinkedIn */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">LinkedIn / Portfolio URL</label>
-                <input
-                  type="url"
-                  value={form.linkedin}
-                  onChange={set('linkedin')}
-                  placeholder="https://linkedin.com/in/yourname"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
-                />
-              </div>
-
-              {/* CV upload */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">CV / Resume *</label>
-                <label className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-dashed border-gray-300 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all">
-                  <Upload size={16} className="text-gray-400 flex-shrink-0" />
-                  <span className="text-sm text-gray-500 truncate">
-                    {fileName || 'Click to upload PDF or DOCX'}
-                  </span>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    className="hidden"
-                    onChange={handleFile}
-                  />
-                </label>
-              </div>
-
-              {/* Cover note */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Cover Note</label>
-                <textarea
-                  rows={3}
-                  value={form.message}
-                  onChange={set('message')}
-                  placeholder="Tell us why you want to join Nikah and what makes you a great fit..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 rounded-2xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-md"
-                style={{ background: 'linear-gradient(135deg,#1a6b4a,#2d9b6f)' }}
-              >
-                Submit Application →
-              </button>
-            </form>
-          )}
+          <p className="text-xs text-gray-400 text-center mt-3">
+            Put <strong>{subject}</strong> in the subject line so we route it correctly.
+          </p>
         </div>
       </div>
     </div>

@@ -112,6 +112,10 @@ export default function SignUpPage() {
   const initialPlan = sanitizePlan(params.get('plan'))
   // Only honor an explicit "0" — any other/missing value keeps the annual default.
   const initialAnnual = params.get('annual') !== '0'
+  // Pre-fill country when arriving from the coverage map ("find matches in Egypt"),
+  // but only if it's a country the wizard's own dropdown offers.
+  const countryParam = params.get('country') ?? ''
+  const initialCountry = COUNTRIES.includes(countryParam) ? countryParam : ''
 
   const [step,         setStep]         = useState<number>(initialPlan !== 'free' ? 1 : 0)
   const [plan,         setPlan]         = useState<PlanId>(initialPlan)
@@ -135,7 +139,7 @@ export default function SignUpPage() {
     prayerLevel: '',
     lifestyle:   [] as string[],
     timeline:    '',
-    country:     '',
+    country:     initialCountry,
     city:        '',
     languages:   [] as string[],
     interests:   [] as string[],
