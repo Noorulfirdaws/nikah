@@ -190,6 +190,23 @@ export default function Footer({ lang, setLang, country, setCountry }: Props) {
                 </Link>
               ))}
             </div>
+
+            {/* Ecosystem bar — links back to the Noor ul Firdaws main site */}
+            <a
+              href="https://www.noorulfirdaws.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Part of the Noor ul Firdaws ecosystem"
+              className="group mt-5 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[0.83rem] no-underline transition-all hover:-translate-y-0.5"
+              style={{ background: '#063F32', color: '#E9E4D6', border: '1px solid rgba(214,173,69,0.28)' }}
+            >
+              <svg viewBox="0 0 40 40" aria-hidden="true" width="20" height="20">
+                <circle cx="20" cy="20" r="19" fill="none" stroke="#D6AD45" strokeWidth="1.1" opacity=".55" />
+                <path d="M20 6 L25 15 L34 20 L25 25 L20 34 L15 25 L6 20 L15 15 Z" fill="none" stroke="#D6AD45" strokeWidth="1.3" />
+              </svg>
+              <span>Part of <strong style={{ color: '#D6AD45', fontWeight: 700 }}>Noor ul Firdaws</strong></span>
+              <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+            </a>
           </div>
 
           {/* Link columns */}
