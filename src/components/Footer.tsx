@@ -207,6 +207,19 @@ export default function Footer({ lang, setLang, country, setCountry }: Props) {
               <span>Part of <strong style={{ color: '#D6AD45', fontWeight: 700 }}>Noor ul Firdaws</strong></span>
               <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
             </a>
+
+            {/* The weekly letter — so a visitor who is not ready to sign up still has somewhere to go */}
+            <a
+              href="https://noorulfirdaws.systeme.io/newsletter"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="One letter a week, written for the ummah"
+              className="group mt-2.5 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[0.83rem] font-semibold no-underline transition-all hover:-translate-y-0.5"
+              style={{ background: '#D6AD45', color: '#05261F' }}
+            >
+              <span>The weekly letter</span>
+              <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+            </a>
           </div>
 
           {/* Link columns */}
